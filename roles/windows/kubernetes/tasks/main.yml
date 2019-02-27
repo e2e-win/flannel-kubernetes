@@ -7,7 +7,14 @@
   include_vars: "{{ ansible_os_family|lower }}.yml"
 
 - name: Kubernetes | Fetch network details
-  include_tasks: set_ip_facts.yml
+  include_tasks: ./set_ip_facts.yml
 
 - name: Kubernetes | Register and start kubelet service
-  include_tasks: ./start_kubelet.yml
+  include_tasks: ./prepare_kubernetes.yml
+
+- name: Kubernetes | Flannel part
+  include_tasks: ./start_flannel.yml
+
+- name: Kubernetes | Set up kubelernetes services
+  include_tasks: ./create_services.yml
+

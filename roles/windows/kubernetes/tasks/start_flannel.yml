@@ -1,0 +1,65 @@
+---
+- name: Flannel | download master.zip
+  win_get_url:
+    url: https://github.com/Microsoft/SDN/archive/master.zip
+    dest: C:\k\master.zip
+
+- name: Flannel | copy files
+  win_shell: |
+    Expand-Archive C:\k\master.zip -DestinationPath C:\k\master
+    mv C:\k\master/SDN-master/Kubernetes/flannel/l2bridge/* C:/k/
+    rm -recurse -force C:\k\master,C:\k\master.zip
+
+- name: Flannel | set kubeconfig
+  win_environment:
+    state: present
+    name: 'KUBECONFIG'
+    value: 'C:\k\config'
+    level: user
+
+- name: Flannel | copy config
+  win_copy:
+    src: ~\.kube\config
+    dest: C:\k\config
+    remote_src: yes
+
+- name: Flannel | pull docker image
+  win_shell: |
+    docker pull mcr.microsoft.com/windows/nanoserver:1809
+    docker tag mcr.microsoft.com/windows/nanoserver:1809 microsoft/nanoserver:latest
+
+- name: Flannel | download start.ps1
+  win_get_url:
+    url: https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1
+    dest: C:\k\download.ps1
+
+- name: Flannel | start downloads
+  win_shell: |
+    cd C:\k
+    .\download.ps1
+
+- name: Flannel | create hns network
+  win_shell: |
+    $ErrorActionPreference = "Stop"
+    cd C:\k
+    Import-Module C:\k\hns.psm1
+    $hnsNetwork = Get-HnsNetwork | ? Name -eq "cbr0"
+    if ($hnsNetwork)
+    {
+        docker ps -q | foreach {docker rm $_ -f} 
+
+        Write-Host "Cleaning up old HNS network found"
+        Write-Host ($hnsNetwork | ConvertTo-Json -Depth 10) 
+        Remove-HnsNetwork $hnsNetwork
+    }
+    if(!(Get-HnsNetwork | ? Name -eq "External"))
+    {
+        New-HNSNetwork -Type L2Bridge -AddressPrefix "192.168.255.0/30" -Gateway "192.168.255.1" -Name "External" -Verbose
+    }
+  async: 10
+  poll: 0
+
+- name: Flannel | wait for connection
+  wait_for_connection:
+    delay: 5
+    timeout: 60

@@ -1,0 +1,217 @@
+---
+- name: Kubernetes | Update CNI Config
+  win_shell: |
+    $ErrorActionPreference = "Stop"
+    $CNIConfig = "C:\k\cni\config\cni.conf"
+    $jsonSampleConfig = '{
+    "cniVersion": "0.2.0",
+    "name": "cbr0",
+    "type": "flannel",
+    "delegate": {
+       "type": "win-bridge",
+        "dns" : {
+          "Nameservers" : [ "10.96.0.10" ],
+          "Search": [ "svc.cluster.local" ]
+        },
+        "policies" : [
+          {
+            "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "ExceptionList": [ "{{ CLUSTER_SUBNET }}", "{{ SERVICE_CLUSTER_IP_RANGE }}", "10.8.0.0/24" ] }
+          },
+          {
+            "Name" : "EndpointPolicy", "Value" : { "Type" : "ROUTE", "DestinationPrefix": "{{ SERVICE_CLUSTER_IP_RANGE }}", "NeedEncap" : true }
+          },
+          {
+            "Name" : "EndpointPolicy", "Value" : { "Type" : "ROUTE", "DestinationPrefix": "{{ MASTER_IP }}/32", "NeedEncap" : true }
+          }
+        ]
+      }
+    }'
+    $configJson =  ConvertFrom-Json $jsonSampleConfig
+    if (Test-Path $CNIConfig) {
+        Clear-Content -Path $CNIConfig
+    }
+    Add-Content -Path $CNIConfig -Value (ConvertTo-Json $configJson -Depth 20)
+- name: Kubernetes | check if Kubelet is installed
+  win_service:
+    name: kubelet
+  register: kubelet_service
+
+- name: Kubelet | Remove kubelet service if it exists
+  win_service:
+    name: kubelet
+    state: absent
+  when: kubelet_service.exists
+
+- name: Kubelet | Remove existing service wrapper config file
+  win_file:
+    state: absent
+    path: '{{ install_path }}\kubelet-servicewrapper-config.ini'
+
+- name: Kubelet | Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\kubelet-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/kubelet.log
+      service-name=kubelet
+      service-command="{{ install_path }}\\kubelet.exe"
+      --hostname-override="{{ ansible_hostname }}"
+      --allow-privileged=true
+      --enable-debugging-handlers
+      --cluster-dns="{{ kubernetes_info.K8S_DNS_SERVICE_IP }}"
+      --cluster-domain="{{ kubernetes_info.K8S_DNS_DOMAIN }}"
+      --pod-infra-container-image="kubeletwin/pause"
+      --kubeconfig="{{ install_path }}\\kubeconfig.yaml"
+      --hairpin-mode=promiscuous-bridge
+      --image-pull-progress-deadline=20m
+      --cgroups-per-qos=false
+      --network-plugin=cni --cni-bin-dir="{{ install_path }}\\cni"
+      --cni-conf-dir="{{ install_path }}\\cni\config"
+      --node-ip="{{ host_public_ip }}"
+      --enforce-node-allocatable=""
+      --resolv-conf=""
+
+- name: Kubelet | Create Kublet Windows service
+  win_service:
+    name: kubelet
+    display_name: Kubernetes Kubelet
+    description: Kubernetes Kubelet service
+    path: >-
+      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\kubelet-servicewrapper-config.ini"
+
+- name: Kublet | Set Kublet service failure command
+  win_shell: >-
+    sc.exe failure kubelet reset=40 actions=restart/0/restart/0/run/30000
+    command="powershell.exe Move-Item
+    \\\`"{{ install_path }}/kubelet.log\\\`"
+    \\\`"{{ install_path }}/kubelet.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
+    Restart-Service kubelet"
+
+- name: Kublet | Enable Kublet service failure flags
+  win_shell: sc.exe failureflag kubelet 1
+
+- name: Kube-proxy | check if kube-proxy is installed
+  win_service:
+    name: kube-proxy
+  register: kube_proxy_service
+
+- name: Kube-proxy | Remove kubelet service if it exists
+  win_service:
+    name: kube-proxy
+    state: absent
+  when: kube_proxy_service.exists
+
+- name: Kube-proxy | Remove existing service wrapper config file
+  win_file:
+    state: absent
+    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+
+#- name: Kube-proxy | Create the new service wrapper config file
+#  win_lineinfile:
+#    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+#    create: yes
+#    line: >
+#      log-file={{ install_path }}/kube-proxy.log
+#      service-name=kube-proxy
+#      service-command="{{ install_path }}\\kube-proxy.exe"
+#      --v=4 --proxy-mode=kernelspace 
+#      --hostname-override="{{ host_public_ip }}"
+#      --kubeconfig=c:\k\config
+#
+#- name: Kube-proxy | Create Kube-proxy Windows service
+#  win_service:
+#    name: kube-proxy
+#    display_name: Kubernetes Kube-proxy
+#    description: Kubernetes Kube-proxy service
+#    path: >-
+#      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\kube-proxy-servicewrapper-config.ini"
+- name: Kube-proxy | Create Kube-proxy Windows service
+  win_service:
+    name: kube-proxy
+    display_name: Kubernetes Kube-proxy
+    description: Kubernetes Kube-proxy service
+    path: >-
+      "{{ install_path }}\\kube-proxy.exe --v=4 --proxy-mode=kernelspace  --hostname-override={{ host_public_ip }} --kubeconfig=c:\k\config"
+
+- name: Kube-proxy | Set Kube-proxy service failure command
+  win_shell: >-
+    sc.exe failure kube-proxy reset=40 actions=restart/0/restart/0/run/30000
+    command="powershell.exe Move-Item
+    \\\`"{{ install_path }}/kube-proxy.log\\\`"
+    \\\`"{{ install_path }}/kube-proxy.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
+    Restart-Service kube-proxy"
+
+- name: Kube-proxy | Enable Kube-proxy service failure flags
+  win_shell: sc.exe failureflag kube-proxy 1
+
+- name: Flanneld | check if flanneld is installed
+  win_service:
+    name: flanneld
+  register: flanneld_service
+
+- name: Flanneld | Remove flanneld service if it exists
+  win_service:
+    name: flanneld
+    state: absent
+  when: flanneld_service.exists
+
+- name: Flaneeld | Remove existing service wrapper config file
+  win_file:
+    state: absent
+    path: '{{ install_path }}\flanneld-servicewrapper-config.ini'
+
+#- name: Flanneld | Create the new service wrapper config file
+#  win_lineinfile:
+#    path: '{{ install_path }}\flanneld-servicewrapper-config.ini'
+#    create: yes
+#    line: >
+#      log-file={{ install_path }}/flanneld.log
+#      service-name=flanneld
+#      service-command="{{ install_path }}\\flanneld.exe"
+#      --kubeconfig-file=C:\k\config --iface={{ MASTER_IP }}
+#      --ip-masq=1 --kube-subnet-mgr=1
+#
+#- name: Flanneld | Create Flanneld Windows service
+#  win_service:
+#    name: flanneld
+#    display_name: Flannel daemon
+#    description: Flannel doaemon for Kubernetes
+#    path: >-
+#      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\flanneld-servicewrapper-config.ini"
+- name: Flanneld | Create Flanneld Windows service
+  win_service:
+    name: flanneld
+    display_name: Flannel daemon
+    description: Flannel doaemon for Kubernetes
+    path: >-
+      "{{ install_path }}\\flanneld.exe" --kubeconfig-file=C:\k\config --iface={{ MASTER_IP }} --ip-masq=1 --kube-subnet-mgr=1
+
+
+- name: Flanneld | Set flanneld service failure command
+  win_shell: >-
+    sc.exe failure flanneld reset=40 actions=restart/0/restart/0/run/30000
+    command="powershell.exe Move-Item
+    \\\`"{{ install_path }}/flanneld.log\\\`"
+    \\\`"{{ install_path }}/flanneld.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
+    Restart-Service flanneld"
+
+- name: Flanneld | Enable flanneld service failure flags
+  win_shell: sc.exe failureflag flanneld 1
+
+- name: Kubelet | Start service kubelet
+  win_service:
+    name: kubelet
+    start_mode: auto
+    state: started
+
+- name: Kube-proxy | Start service kube-proxy
+  win_service:
+    name: kube-proxy
+    start_mode: auto
+    state: started
+
+- name: Flanneld | Start service flanneld
+  win_service:
+    name: flanneld
+    start_mode: auto
+    state: started
