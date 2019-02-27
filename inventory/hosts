@@ -1,0 +1,8 @@
+[kube-master]
+k8s-master
+
+[kube-minions-linux]
+k8s-linux-1
+
+[kube-minions-windows]
+k8s-win-1

@@ -1,0 +1,10 @@
+---
+master_service_names:
+  - "etcd3"
+  - "kube-apiserver"
+  - "kube-controller-manager"
+  - "kube-scheduler"
+  - "kubelet"
+
+minion_service_names:
+  - "kubelet"

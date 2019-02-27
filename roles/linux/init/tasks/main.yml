@@ -1,0 +1,28 @@
+---
+- name: Init | add kubernetes repo key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  
+- name: Init | add kubernetes repo list
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: Init | Update and upgrade apt packages
+  apt:
+    upgrade: yes
+    update_cache: yes
+
+- name: Init | Install kubeadm
+  apt:
+    name: kubeadm
+    state: latest
+
+- name: Init | Disable swap
+  shell: |
+    swapoff -a
+
+- name: Init | Initialize master node
+  shell: |
+    kubeadm init --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12

@@ -1,0 +1,81 @@
+---
+- hosts: kube-master
+  any_errors_fatal: true
+  gather_facts: true
+  become: true
+  tasks:
+    - import_role:
+        name: linux/version_check
+    - import_role:
+        name: linux/docker
+    - import_role:
+        name: linux/kubernetes
+
+- hosts: kube-minions-linux
+  any_errors_fatal: true
+  gather_facts: true
+  become: true
+  tasks:
+    - import_role:
+        name: linux/version_check
+    - import_role:
+        name: linux/docker
+    - import_role:
+        name: linux/kubernetes
+    - name: Ensure /etc/hosts is updated on kube-master
+      lineinfile:
+        path: /etc/hosts
+        regexp: ' {{ ansible_hostname | lower }}$'
+        line: '{{ host_public_ip }} {{ ansible_hostname | lower }}'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['kube-master'] }}"
+
+- hosts: kube-minions-windows
+  remote_user: Administrator
+  gather_facts: true
+  become_method: runas
+  any_errors_fatal: true
+  tasks:
+    - set_fact:
+        windows_container_tag: 1709
+      when: ansible_kernel == windows1709
+    - set_fact:
+        windows_container_tag: 1803
+      when: ansible_kernel == windows1803
+    - set_fact:
+        windows_container_tag: 1809
+      when: ansible_kernel == windows2019
+    - import_role:
+        name: windows/version_check
+    - import_role:
+        name: windows/requirements
+    - import_role:
+        name: windows/docker
+    - import_role:
+        name: windows/kubernetes
+    - name: Ensure /etc/hosts is updated on kube-master
+      become: true
+      become_method: sudo
+      lineinfile:
+        path: /etc/hosts
+        regexp: ' {{ ansible_hostname | lower }}$'
+        line: '{{ host_public_ip }} {{ ansible_hostname | lower }}'
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['kube-master'] }}"
+
+- hosts: kube-master:kube-minions-linux
+  any_errors_fatal: true
+  gather_facts: true
+  become: true
+  tasks:
+    - import_role:
+        name: linux/validation
+
+- hosts: kube-minions-windows
+  remote_user: Administrator
+  gather_facts: true
+  become_method: runas
+  any_errors_fatal: true
+  tasks:
+    - import_role:
+        name: windows/validation
