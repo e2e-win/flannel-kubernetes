@@ -38,6 +38,11 @@
     cd C:\k
     .\download.ps1
 
+- name: Flannel | create kubeletwin\pause image 
+  win_shell: |
+    cd C:\k
+    .\InstallImages.ps1
+
 - name: Flannel | create hns network
   win_shell: |
     $ErrorActionPreference = "Stop"

@@ -1,4 +1,13 @@
 ---
+- name: Kubernetes | Get current subnet
+  win_shell: |
+    ipmo C:\k\helper.psm1
+    Get-MgmtSubnet
+  register: mgmtsubnet
+
+- set_fact:
+    mgmtsubnet: "{{ mgmtsubnet.stdout | trim }}"
+
 - name: Kubernetes | Update CNI Config
   win_shell: |
     $ErrorActionPreference = "Stop"
@@ -15,7 +24,7 @@
         },
         "policies" : [
           {
-            "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "ExceptionList": [ "{{ CLUSTER_SUBNET }}", "{{ SERVICE_CLUSTER_IP_RANGE }}", "10.8.0.0/24" ] }
+            "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "ExceptionList": [ "{{ CLUSTER_SUBNET }}", "{{ SERVICE_CLUSTER_IP_RANGE }}", "{{ mgmtsubnet }}" ] }
           },
           {
             "Name" : "EndpointPolicy", "Value" : { "Type" : "ROUTE", "DestinationPrefix": "{{ SERVICE_CLUSTER_IP_RANGE }}", "NeedEncap" : true }
@@ -53,7 +62,9 @@
     create: yes
     line: >
       log-file={{ install_path }}/kubelet.log
+
       service-name=kubelet
+
       service-command="{{ install_path }}\\kubelet.exe"
       --hostname-override="{{ ansible_hostname }}"
       --allow-privileged=true
@@ -106,32 +117,30 @@
     state: absent
     path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
 
-#- name: Kube-proxy | Create the new service wrapper config file
-#  win_lineinfile:
-#    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
-#    create: yes
-#    line: >
-#      log-file={{ install_path }}/kube-proxy.log
-#      service-name=kube-proxy
-#      service-command="{{ install_path }}\\kube-proxy.exe"
-#      --v=4 --proxy-mode=kernelspace 
-#      --hostname-override="{{ host_public_ip }}"
-#      --kubeconfig=c:\k\config
-#
-#- name: Kube-proxy | Create Kube-proxy Windows service
-#  win_service:
-#    name: kube-proxy
-#    display_name: Kubernetes Kube-proxy
-#    description: Kubernetes Kube-proxy service
-#    path: >-
-#      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\kube-proxy-servicewrapper-config.ini"
+- name: Kube-proxy | Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/kube-proxy.log
+
+      service-name=kube-proxy
+
+      service-command="{{ install_path }}\\kube-proxy.exe"
+      --v=4 --proxy-mode=kernelspace 
+      --hostname-override="{{ ansible_hostname }}"
+      --kubeconfig=c:\k\config
+      --feature-gates="WinDSR=false"
+      --network-name="cbr0" --enable-dsr=false
+      --cluster-cidr="{{ kubernetes_info.CLUSTER_SUBNET }}"
+
 - name: Kube-proxy | Create Kube-proxy Windows service
   win_service:
     name: kube-proxy
     display_name: Kubernetes Kube-proxy
     description: Kubernetes Kube-proxy service
     path: >-
-      "{{ install_path }}\\kube-proxy.exe --v=4 --proxy-mode=kernelspace  --hostname-override={{ host_public_ip }} --kubeconfig=c:\k\config"
+      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\kube-proxy-servicewrapper-config.ini"
 
 - name: Kube-proxy | Set Kube-proxy service failure command
   win_shell: >-
@@ -160,32 +169,26 @@
     state: absent
     path: '{{ install_path }}\flanneld-servicewrapper-config.ini'
 
-#- name: Flanneld | Create the new service wrapper config file
-#  win_lineinfile:
-#    path: '{{ install_path }}\flanneld-servicewrapper-config.ini'
-#    create: yes
-#    line: >
-#      log-file={{ install_path }}/flanneld.log
-#      service-name=flanneld
-#      service-command="{{ install_path }}\\flanneld.exe"
-#      --kubeconfig-file=C:\k\config --iface={{ MASTER_IP }}
-#      --ip-masq=1 --kube-subnet-mgr=1
-#
-#- name: Flanneld | Create Flanneld Windows service
-#  win_service:
-#    name: flanneld
-#    display_name: Flannel daemon
-#    description: Flannel doaemon for Kubernetes
-#    path: >-
-#      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\flanneld-servicewrapper-config.ini"
+- name: Flanneld | Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\flanneld-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/flanneld.log
+
+      service-name=flanneld
+
+      service-command="{{ install_path }}\\flanneld.exe"
+      --kubeconfig-file=C:\k\config --iface={{ host_public_ip }}
+      --ip-masq=1 --kube-subnet-mgr=1
+
 - name: Flanneld | Create Flanneld Windows service
   win_service:
     name: flanneld
     display_name: Flannel daemon
     description: Flannel doaemon for Kubernetes
     path: >-
-      "{{ install_path }}\\flanneld.exe" --kubeconfig-file=C:\k\config --iface={{ MASTER_IP }} --ip-masq=1 --kube-subnet-mgr=1
-
+      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\flanneld-servicewrapper-config.ini"
 
 - name: Flanneld | Set flanneld service failure command
   win_shell: >-
@@ -198,20 +201,37 @@
 - name: Flanneld | Enable flanneld service failure flags
   win_shell: sc.exe failureflag flanneld 1
 
+- name: Flanneld | set env variables
+  win_environment:
+    state: present
+    name: "NODE_NAME"
+    value: "{{ ansible_hostname | lower }}"
+    level: machine
+
 - name: Kubelet | Start service kubelet
   win_service:
     name: kubelet
     start_mode: auto
     state: started
 
-- name: Kube-proxy | Start service kube-proxy
-  win_service:
-    name: kube-proxy
-    start_mode: auto
-    state: started
+- name: Kubelet | llet kubelet register itself properly
+  pause:
+    seconds: 20
 
 - name: Flanneld | Start service flanneld
   win_service:
     name: flanneld
+    start_mode: auto
+    state: started
+
+- name: Kubelet | Restart service kubelet
+  win_service:
+    name: kubelet
+    start_mode: auto
+    state: restarted
+
+- name: Kube-proxy | Start service kube-proxy
+  win_service:
+    name: kube-proxy
     start_mode: auto
     state: started
