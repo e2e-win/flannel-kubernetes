@@ -1,5 +1,5 @@
 ---
-- name: Linux validation | include vars
+- name: Linux validation | Include vars
   include_vars: "{{ ansible_distribution | lower }}.yml"
 
 - name: Linux validation | Set the service_names fact

@@ -4,7 +4,7 @@
     path: "{{ download_info.install_path }}"
     state: directory
 
-- name: Kubernetes | get kubernetes binaries
+- name: Kubernetes | Get kubernetes binaries
   win_copy:
     src: "{{ansible_tmp_dir}}/{{item}}"
     dest: "{{ download_info.install_path }}/{{item}}"

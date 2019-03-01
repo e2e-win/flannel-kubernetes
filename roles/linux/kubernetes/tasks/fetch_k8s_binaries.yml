@@ -1,5 +1,5 @@
 ---
-- name: Kubernetes bins | fetch Linux binaries to the ansible host
+- name: Kubernetes bins | Fetch Linux binaries to the ansible host
   fetch:
     fail_on_missing: yes
     flat: yes
@@ -9,7 +9,7 @@
     - "{{kubernetes_binaries.linux_master}}"
     - "{{kubernetes_binaries.linux_minion}}"
 
-- name: Kubernetes bins | fetch Linux binaries to the ansible host
+- name: Kubernetes bins | Fetch Linux binaries to the ansible host
   fetch:
     fail_on_missing: yes
     flat: yes
@@ -18,7 +18,7 @@
   with_items:
     - "{{kubernetes_binaries.linux_common}}"
 
-- name: Kubernetes bins | fetch Windows binaries to the ansible host
+- name: Kubernetes bins | Fetch Windows binaries to the ansible host
   fetch:
     fail_on_missing: yes
     flat: yes

@@ -1,5 +1,5 @@
 ---
-- name: Kubernetes bins | distribute Linux minion binaries
+- name: Kubernetes bins | Distribute Linux minion binaries
   copy:
     src: "{{ansible_tmp_dir}}/{{item}}"
     dest: "{{ kubernetes_binaries_info.install_path }}/{{item}}"
@@ -11,7 +11,7 @@
     - "{{kubernetes_binaries.linux_minion}}"
   when: minion
 
-- name: Kubernetes bins | distribute Linux master binaries
+- name: Kubernetes bins | Distribute Linux master binaries
   copy:
     src: "{{ansible_tmp_dir}}/{{item}}"
     dest: "{{ kubernetes_binaries_info.install_path }}/{{item}}"

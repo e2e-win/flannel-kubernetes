@@ -1,12 +1,12 @@
 ---
-- name: Docker | include global vars for minions
+- name: Docker | Include global vars for minions
   include_vars: "{{ansible_tmp_dir}}/generated_global_vars.yml"
   when: not master
 
-- name: Docker | include vars
+- name: Docker | Include vars
   include_vars: "{{ ansible_distribution|lower }}.yml"
 
-- name: Docker | ensure docker repository public key is installed
+- name: Docker | Ensure docker repository public key is installed
   action: "{{ docker_repo_key_info.pkg_key }}"
   args:
     id: "{{item}}"
@@ -17,14 +17,14 @@
   retries: 3
   with_items: "{{ docker_repo_key_info.repo_keys }}"
 
-- name: Docker | ensure docker repository is enabled
+- name: Docker | Ensure docker repository is enabled
   action: "{{ docker_repo_info.pkg_repo }}"
   args:
     repo: "{{item}}"
     state: present
   with_items: "{{ docker_repo_info.repos }}"
 
-- name: Docker | ensure docker packages are installed
+- name: Docker | Ensure docker packages are installed
   action: "{{ docker_package_info.pkg_mgr }}"
   args:
     pkg: "{{item.name}}"
@@ -35,6 +35,6 @@
   retries: 3
   with_items: "{{ docker_package_info.pkgs }}"
 
-- name: Docker | restart docker
+- name: Docker | Restart docker
   include_tasks: ./restart_docker.yml
   when: docker_task_result.changed

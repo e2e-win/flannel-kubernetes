@@ -1,10 +1,10 @@
 ---
-- name: Init | add kubernetes repo key
+- name: Init | Add kubernetes repo key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
   
-- name: Init | add kubernetes repo list
+- name: Init | Add kubernetes repo list
   apt_repository:
     repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
     state: present

@@ -1,12 +1,12 @@
 ---
-- name: Kubernetes | include global vars for minions
+- name: Kubernetes | Include global vars for minions
   include_vars: "{{ansible_tmp_dir}}/generated_global_vars.yml"
   when: not master
 
-- name: Kubernetes | include vars
+- name: Kubernetes | Include vars
   include_vars: "{{ ansible_distribution|lower }}.yml"
 
-- name: Kubernetes | fetch network details
+- name: Kubernetes | Fetch network details
   include_tasks: set_ip_facts.yml
 
 - debug:

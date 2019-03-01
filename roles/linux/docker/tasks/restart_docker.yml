@@ -1,23 +1,23 @@
 ---
-- name: Docker | reload systemd
+- name: Docker | Reload systemd
   shell: systemctl daemon-reload
 
-- name: Docker | reload docker.socket
+- name: Docker | Reload docker.socket
   service:
     name: docker.socket
     state: restarted
 
-- name: Docker | reload docker
+- name: Docker | Reload docker
   service:
     name: docker
     state: restarted
 
-- name: Docker | pause while Docker restarts
+- name: Docker | Pause while Docker restarts
   pause:
     seconds: 10
     prompt: "Waiting for docker restart"
 
-- name: Docker | wait for docker
+- name: Docker | Wait for docker
   command: "{{ docker_bin_dir }}/docker images"
   register: docker_ready
   retries: 10
