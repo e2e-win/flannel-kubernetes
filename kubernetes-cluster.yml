@@ -74,19 +74,19 @@
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
 
-- hosts: kube-master:kube-minions-linux
-  any_errors_fatal: true
-  gather_facts: true
-  become: true
-  tasks:
-    - import_role:
-        name: linux/validation
+# - hosts: kube-master:kube-minions-linux
+#   any_errors_fatal: true
+#   gather_facts: true
+#   become: true
+#   tasks:
+#     - import_role:
+#         name: linux/validation
 
-- hosts: kube-minions-windows
-  remote_user: Administrator
-  gather_facts: true
-  become_method: runas
-  any_errors_fatal: true
-  tasks:
-    - import_role:
-        name: windows/validation
+# - hosts: kube-minions-windows
+#   remote_user: Administrator
+#   gather_facts: true
+#   become_method: runas
+#   any_errors_fatal: true
+#   tasks:
+#     - import_role:
+#         name: windows/validation
