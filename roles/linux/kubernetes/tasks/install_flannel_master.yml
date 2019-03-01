@@ -1,20 +1,20 @@
 ---
-- name: Flannel | enable bridged IPv4 traffic
+- name: Flannel | Enable bridged IPv4 traffic
   shell: |
     sudo sysctl net.bridge.bridge-nf-call-iptables=1
 
-- name: Flannel | download flannel yaml
+- name: Flannel | Download flannel yaml
   get_url:
     url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     dest: /root/kube-flannel.yml
     mode: 0644
 
-- name: Flannel | select Flannel networking option
+- name: Flannel | Select Flannel networking option
   shell: |
     sed -i s/vxlan/host-gw/g ~/kube-flannel.yml
   when: FLANNEL_MODE == "host-gw"
 
-- name: Flannel | apply flannel yaml
+- name: Flannel | Apply flannel yaml
   shell: |
     kubectl apply -f /root/kube-flannel.yml
 

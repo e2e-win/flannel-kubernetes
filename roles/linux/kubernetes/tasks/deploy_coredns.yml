@@ -1,17 +1,17 @@
 ---
-- name: CoreDNS | check if CoreDNS is cloned
+- name: CoreDNS | Check if CoreDNS is cloned
   stat:
     path: "{{ kubernetes_dns.tmp_path }}/coredns-checkout"
   register: coredns_repo
 
-- name: CoreDNS | git clone
+- name: CoreDNS | Git clone
   git:
     repo: "{{ kubernetes_dns.coredns_git_url }}"
     dest: "{{ kubernetes_dns.tmp_path }}/coredns-checkout"
     version: "{{ kubernetes_dns.branch }}"
   when: not coredns_repo.stat.exists
 
-- name: CoreDNS | generate yaml and apply it
+- name: CoreDNS | Generate yaml and apply it
   shell: |
     set -o errexit
     cd {{ kubernetes_dns.tmp_path }}/coredns-checkout/kubernetes

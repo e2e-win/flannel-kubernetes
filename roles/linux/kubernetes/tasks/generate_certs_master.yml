@@ -1,11 +1,11 @@
 ---
-- name: Kubernetes Certs | create temp folder
+- name: Kubernetes Certs | Create temp folder
   file:
     path: "{{ kubernetes_certificates.tmp_generate_path }}"
     state: directory
     mode: 0755
 
-- name: Kubernetes Certs | create make-certs
+- name: Kubernetes Certs | Create make-certs
   lineinfile:
     path: "{{ kubernetes_certificates.tmp_generate_path }}/make-certs"
     create: yes
@@ -54,7 +54,7 @@
       openssl req -new -key $pem_admin_key -out $pem_admin_csr -subj "/CN=kube-admin"
       openssl x509 -req -in $pem_admin_csr -CA $pem_ca -CAkey $pem_ca_key -CAcreateserial -out $pem_admin -days 365
 
-- name: Kubernetes Certs | create openssl.cnf
+- name: Kubernetes Certs | Create openssl.cnf
   lineinfile:
     path: "{{ kubernetes_certificates.tmp_generate_path }}/openssl.cnf"
     create: yes
@@ -75,12 +75,12 @@
       IP.1 = {{ kubernetes_cluster_info.K8S_API_SERVICE_IP }}
       IP.2 = {{ host_internal_ip }}
 
-- name: Kubernetes Certs | remove existing kubernetes certs
+- name: Kubernetes Certs | Remove existing kubernetes certs
   file:
     path: /etc/kubernetes
     state: absent
 
-- name: Kubernetes Certs | create kubernetes certs folder
+- name: Kubernetes Certs | Create kubernetes certs folder
   file:
     path: /etc/kubernetes
     state: directory

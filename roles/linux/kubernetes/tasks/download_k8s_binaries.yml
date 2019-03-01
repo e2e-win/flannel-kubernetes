@@ -1,10 +1,10 @@
 ---
-- name: Kubernetes bins | expecting all bins to be downloaded already
+- name: Kubernetes bins | Expecting all bins to be downloaded already
   set_fact:
     linux_kube_bins_missing: false
     windows_kube_bins_missing: false
 
-- name: Kubernetes bins | checking if linux kubernetes bins have been downloaded
+- name: Kubernetes bins | Checking if linux kubernetes bins have been downloaded
   action: stat path="{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/server/kubernetes/server/bin/{{item}}"
   register: linux_kube_stat_bins_exists
   with_items:
@@ -12,7 +12,7 @@
     - "{{kubernetes_binaries.linux_master}}"
     - "{{kubernetes_binaries.linux_minion}}"
 
-- name: Kubernetes bins | checking linux bins
+- name: Kubernetes bins | Checking linux bins
   set_fact:
     linux_kube_bins_missing: true
   with_items:
@@ -23,13 +23,13 @@
 
 - name: Kubernetes bins | Download linux bins
   block:
-    - name: Kubernetes bins | create temp directory
+    - name: Kubernetes bins | Create temp directory
       file:
         path: "{{ kubernetes_binaries_info.tmp_download_path }}"
         state: directory
         mode: 0755
 
-    - name: Kubernetes bins | get kubernetes.tar.gz archive
+    - name: Kubernetes bins | Get kubernetes.tar.gz archive
       get_url:
         url: "{{ kubernetes_binaries_info.kubernetes_targz_link }}"
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes.tar.gz"
@@ -37,22 +37,22 @@
         timeout: 30
       retries: 3
 
-    - name: Kubernetes bins | unarchive tar.gz
+    - name: Kubernetes bins | Unarchive tar.gz
       unarchive:
         src: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes.tar.gz"
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}"
         remote_src: yes
 
-    - name: Kubernetes bins | download kubernetes binaries
+    - name: Kubernetes bins | Download kubernetes binaries
       action: shell yes | "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/cluster/get-kube-binaries.sh"
 
-    - name: Kubernetes bins | unarchive binaries
+    - name: Kubernetes bins | Unarchive binaries
       unarchive:
         src: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/server"
         remote_src: yes
 
-    - name: Kubernetes bins | install Linux master binaries
+    - name: Kubernetes bins | Install Linux master binaries
       copy:
         src: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/server/kubernetes/server/bin/{{item}}"
         dest: "{{ kubernetes_binaries_info.install_path }}/{{item}}"
@@ -65,13 +65,13 @@
         - "{{kubernetes_binaries.linux_master}}"
   when: linux_kube_bins_missing
 
-- name: Kubernetes bins | checking if windows kubernetes bins have been downloaded
+- name: Kubernetes bins | Checking if windows kubernetes bins have been downloaded
   action: stat path="{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/node/bin/{{item}}"
   register: windows_kube_stat_bins_exists
   with_items:
     - "{{kubernetes_binaries.windows}}"
 
-- name: Kubernetes bins | checking windows bins
+- name: Kubernetes bins | Checking windows bins
   set_fact:
     windows_kube_bins_missing: true
   with_items:
@@ -90,7 +90,7 @@
         timeout: 30
       retries: 3
 
-    - name: Kubernetes bins | unarchive Windows binaries
+    - name: Kubernetes bins | Unarchive Windows binaries
       unarchive:
         src: "{{ kubernetes_binaries_info.tmp_download_path }}/winbins.tar.gz"
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}/"

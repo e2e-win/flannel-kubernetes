@@ -1,5 +1,5 @@
 ---
-- name: Kubernetes Master | register kube-apiserver
+- name: Kubernetes Master | Register kube-apiserver
   blockinfile:
     path: /etc/systemd/system/kube-apiserver.service
     create: yes
@@ -31,7 +31,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Master | register kube-controller-manager
+- name: Kubernetes Master | Register kube-controller-manager
   blockinfile:
     path: /etc/systemd/system/kube-controller-manager.service
     create: yes
@@ -54,7 +54,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Master | register kube-scheduler
+- name: Kubernetes Master | Register kube-scheduler
   blockinfile:
     path: /etc/systemd/system/kube-scheduler.service
     create: yes
@@ -72,7 +72,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Master | register kube-proxy
+- name: Kubernetes Master | Register kube-proxy
   blockinfile:
     path: /etc/systemd/system/kube-proxy.service
     create: yes
@@ -89,7 +89,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Minion | start kube-proxy
+- name: Kubernetes Minion | Start kube-proxy
   service:
     name: "kube-proxy"
     enabled: yes
@@ -97,7 +97,7 @@
     daemon_reload: yes
   changed_when: false
 
-- name: Kubernetes Master | register etcd3
+- name: Kubernetes Master | Register etcd3
   blockinfile:
     path: /etc/systemd/system/etcd3.service
     create: yes
@@ -226,7 +226,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Minion | start kubelet
+- name: Kubernetes Minion | Start kubelet
   service:
     name: "kubelet"
     enabled: yes
@@ -234,7 +234,7 @@
     daemon_reload: yes
   changed_when: false
 
-- name: Kubernetes Master | restart all services
+- name: Kubernetes Master | Restart all services
   service:
     name: "{{item}}"
     enabled: yes
@@ -255,7 +255,7 @@
     state: directory
     mode: 0755
 
-- name: Kubernetes Master | get cni archive
+- name: Kubernetes Master | Get cni archive
   get_url:
     url: "{{kubernetes_binaries_info.cni_linux_download_link}}"
     dest: "/opt/cni/bin/cni.tgz"
@@ -263,7 +263,7 @@
     timeout: 30
   retries: 3
 
-- name: Kubernetes Master | unarchive tar.gz
+- name: Kubernetes Master | Unarchive tar.gz
   unarchive:
     src: "/opt/cni/bin/cni.tgz"
     dest: "/opt/cni/bin/"

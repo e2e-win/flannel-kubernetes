@@ -1,5 +1,5 @@
 ---
-- name: golang | include vars
+- name: golang | Include vars
   include_vars: "{{ ansible_distribution | lower }}.yml"
 
 - name: golang | Detecting golang architecture

@@ -59,7 +59,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Master | register kube-proxy
+- name: Kubernetes Master | Register kube-proxy
   blockinfile:
     path: /etc/systemd/system/kube-proxy.service
     create: yes
@@ -76,7 +76,7 @@
       [Install]
       WantedBy=multi-user.target
 
-- name: Kubernetes Minion | start kube-proxy
+- name: Kubernetes Minion | Start kube-proxy
   service:
     name: "kube-proxy"
     enabled: yes
@@ -84,7 +84,7 @@
     daemon_reload: yes
   changed_when: false
 
-- name: Kubernetes Minion | start kubelet
+- name: Kubernetes Minion | Start kubelet
   service:
     name: "kubelet"
     enabled: yes
@@ -109,7 +109,7 @@
     state: directory
     mode: 0755
 
-- name: Kubernetes Minion | get cni archive
+- name: Kubernetes Minion | Get cni archive
   get_url:
     url: "{{kubernetes_binaries_info.cni_linux_download_link}}"
     dest: "/opt/cni/bin/cni.tgz"
@@ -117,7 +117,7 @@
     timeout: 30
   retries: 3
 
-- name: Kubernetes Minion | unarchive tar.gz
+- name: Kubernetes Minion | Unarchive tar.gz
   unarchive:
     src: "/opt/cni/bin/cni.tgz"
     dest: "/opt/cni/bin/"

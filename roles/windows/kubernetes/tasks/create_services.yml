@@ -40,7 +40,8 @@
         Clear-Content -Path $CNIConfig
     }
     Add-Content -Path $CNIConfig -Value (ConvertTo-Json $configJson -Depth 20)
-- name: Kubernetes | check if Kubelet is installed
+
+- name: Kubernetes | Check if Kubelet is installed
   win_service:
     name: kubelet
   register: kubelet_service
@@ -101,7 +102,7 @@
 - name: Kublet | Enable Kublet service failure flags
   win_shell: sc.exe failureflag kubelet 1
 
-- name: Kube-proxy | check if kube-proxy is installed
+- name: Kube-proxy | Check if kube-proxy is installed
   win_service:
     name: kube-proxy
   register: kube_proxy_service
@@ -153,7 +154,7 @@
 - name: Kube-proxy | Enable Kube-proxy service failure flags
   win_shell: sc.exe failureflag kube-proxy 1
 
-- name: Flanneld | check if flanneld is installed
+- name: Flanneld | Check if flanneld is installed
   win_service:
     name: flanneld
   register: flanneld_service
@@ -201,7 +202,7 @@
 - name: Flanneld | Enable flanneld service failure flags
   win_shell: sc.exe failureflag flanneld 1
 
-- name: Flanneld | set env variables
+- name: Flanneld | Set env variables
   win_environment:
     state: present
     name: "NODE_NAME"
@@ -214,7 +215,7 @@
     start_mode: auto
     state: started
 
-- name: Kubelet | llet kubelet register itself properly
+- name: Kubelet | Let kubelet register itself properly
   pause:
     seconds: 20
 
