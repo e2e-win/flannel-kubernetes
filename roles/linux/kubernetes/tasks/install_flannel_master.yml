@@ -10,8 +10,11 @@
     mode: 0644
 
 - name: Flannel | Select Flannel networking option
-  shell: |
-    sed -i s/vxlan/host-gw/g ~/kube-flannel.yml
+  replace:
+    path: /root/kube-flannel.yml
+    regexp: 'vxlan'
+    replace: 'host-gw'
+    backup: yes
   when: FLANNEL_MODE == "host-gw"
 
 - name: Flannel | Apply flannel yaml
