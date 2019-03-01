@@ -1,7 +1,7 @@
 # Ansible playbooks to deploy Kubernetes
 
 The ansible playbooks are able to deploy a kubernetes cluster with
-Linux and Windows minion nodes.
+Windows minion nodes and Flannel as SDN solution.
 
 ## Ansible requirements
 
@@ -35,11 +35,9 @@ ansible-playbook kubernetes-cluster.yml
 ```
 
 Currently supported Linux nodes:
-- Ubuntu 14.04 and 16.04
+- 16.04
 
 Currently supported Windows nodes:
-- Windows Server 2016 build version 1709 (OS Version 10.0.16299.0)
-- Windows Server 2016 build version 1803 (OS Version 10.0.17134.0)
 - Windows Server 2019 LTSC and build version 1809 (OS Version 10.0.17763.0)
 
 ## Ports that have to be opened on public clouds when using the playbooks
@@ -57,16 +55,6 @@ The following ports need to be opened if we access the cluster machines via the 
 - WinRM via HTTPS: TCP `5986` (for HTTP also TCP `5985`)
 - SSH: TCP `22`
 
-### OVN related ports
-
-- OVN Northbound (NB): TCP `6641`
-- OVN Southbound (SB): TCP `6642`
-
-### OVS related encapsulation ports
-
-- GENEVE encapsulation (used by default): UDP `6081`
-- STT encapsulation (optional encapsulation type, [no special NIC required](https://networkheresy.com/2012/03/04/network-virtualization-encapsulation-and-stateless-tcp-transport-stt/)): TCP `7471`
-
 ### Further useful ports/types
 
 - Windows RDP Port: 3389 (TCP)
@@ -74,10 +62,9 @@ The following ports need to be opened if we access the cluster machines via the 
 
 ## Work in progress
 
-- Support for hybrid cluster with master/minion nodes on different cloud providers.
+- Flannel with network-mode overlay
 
-- Different Linux versions support (currently only Ubuntu 14.04 and 16.04 supported)
+- Different Linux versions support (currently only 16.04 supported)
 
-### Known issues
+### Known issues ( TO BE UPDATED )
 
-- Windows containers do not support IPv6 at the moment. You can read more [here](https://docs.microsoft.com/en-us/virtualization/windowscontainers/container-networking/architecture#unsupported-features-and-network-options)
