@@ -70,8 +70,6 @@
   any_errors_fatal: true
   serial: 1
   tasks:
-    - include_vars: roles/windows/kubernetes/vars/{{ ansible_os_family|lower }}.yml
-    - include_tasks: roles/windows/kubernetes/tasks/set_ip_facts.yml
     - name: Ensure /etc/hosts is updated on kube-master
       become: true
       become_method: sudo
