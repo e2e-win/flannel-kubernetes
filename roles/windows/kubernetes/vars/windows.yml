@@ -13,3 +13,7 @@ kubernetes_info:
 
 download_info:
   install_path: "{{install_path | default('C:/k')}}"
+
+download_links:
+  flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
+  download_script: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1"

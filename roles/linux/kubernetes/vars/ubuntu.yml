@@ -43,3 +43,7 @@ kubernetes_dns:
   coredns_git_url: https://github.com/coredns/deployment
   tmp_path: /tmp
   branch: master
+
+flannel_download_links:
+  kube_flannel: "https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+  node_selector_patch: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/manifests/node-selector-patch.yml"

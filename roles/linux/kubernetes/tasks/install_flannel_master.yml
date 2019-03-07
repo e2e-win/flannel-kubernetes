@@ -7,7 +7,7 @@
 
 - name: Flannel | Download flannel yaml
   get_url:
-    url: https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    url: "{{ flannel_download_links.kube_flannel }}"
     dest: /root/kube-flannel.yml
     mode: 0644
 
@@ -22,7 +22,7 @@
 
 - name: Flannel | Download node-selector-patch.yml
   get_url:
-    url: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/manifests/node-selector-patch.yml
+    url: "{{ flannel_download_links.node_selector_patch }}"
     dest: /root/node-selector-patch.yml
     mode: 0644
 

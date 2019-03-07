@@ -1,7 +1,7 @@
 ---
 - name: Flannel | Download master.zip
   win_get_url:
-    url: https://github.com/Microsoft/SDN/archive/master.zip
+    url: "{{ download_links.flannel_master_zip }}"
     dest: C:\k\master.zip
 
 - name: Flannel | Copy files
@@ -28,9 +28,9 @@
     docker pull mcr.microsoft.com/windows/nanoserver:1809
     docker tag mcr.microsoft.com/windows/nanoserver:1809 microsoft/nanoserver:latest
 
-- name: Flannel | Download start.ps1
+- name: Flannel | Download download.ps1
   win_get_url:
-    url: https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1
+    url: "{{ download_links.download_script }}"
     dest: C:\k\download.ps1
 
 - name: Flannel | Start downloads
