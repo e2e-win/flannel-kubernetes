@@ -22,6 +22,14 @@
         name: linux/docker
     - import_role:
         name: linux/kubernetes
+
+- hosts: kube-minions-linux
+  any_errors_fatal: true
+  gather_facts: true
+  become: true
+  serial: 1
+  tasks:
+    - include_tasks: roles/linux/kubernetes/tasks/set_ip_facts.yml
     - name: Ensure /etc/hosts is updated on kube-master
       lineinfile:
         path: /etc/hosts
@@ -29,6 +37,7 @@
         line: '{{ host_public_ip }} {{ ansible_hostname | lower }}'
       delegate_to: "{{ item }}"
       with_items: "{{ groups['kube-master'] }}"
+
 
 - hosts: kube-minions-windows
   remote_user: Administrator
@@ -53,6 +62,14 @@
         name: windows/docker
     - import_role:
         name: windows/kubernetes
+
+- hosts: kube-minions-windows
+  remote_user: Administrator
+  gather_facts: true
+  become_method: runas
+  any_errors_fatal: true
+  serial: 1
+  tasks:
     - name: Ensure /etc/hosts is updated on kube-master
       become: true
       become_method: sudo
