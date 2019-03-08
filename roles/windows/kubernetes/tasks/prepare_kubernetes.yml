@@ -12,6 +12,7 @@
     - kubectl.exe
     - kubelet.exe
     - kube-proxy.exe
+
 - name: Kubelet | Delete kubeconfig
   win_file:
     path: "{{ install_path }}/kubeconfig.yaml"
