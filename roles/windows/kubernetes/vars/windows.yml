@@ -17,3 +17,8 @@ download_info:
 download_links:
   flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
   download_script: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1"
+
+docker_images:
+  1809: "mcr.microsoft.com/windows/nanoserver:1809"
+  nanoserver: "mcr.microsoft.com/windows/nanoserver"
+  servercore: "mcr.microsoft.com/windows/servercore"
