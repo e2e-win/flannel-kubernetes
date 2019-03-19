@@ -23,10 +23,28 @@
     dest: C:\k\config
     remote_src: yes
 
-- name: Flannel | Pull docker image
+- name: Flannel | Create Dockerfile for kubeletwin\pause image
+  win_lineinfile:
+    path: "{{ install_path }}/Dockerfile"
+    create: yes
+    line: |
+      FROM {{ docker_images.nanoserver }}
+      CMD cmd /c ping -t localhost
+
+- name: Flannel | Prepare kubeletwin\pause image
   win_shell: |
-    docker pull mcr.microsoft.com/windows/nanoserver:1809
-    docker tag mcr.microsoft.com/windows/nanoserver:1809 microsoft/nanoserver:latest
+    docker pull "{{ docker_images.1809 }}"
+    if (!(docker images "{{ docker_images.nanoserver }}:latest" -q))
+    {
+        docker tag (docker images {{ docker_images.nanoserver }} -q) {{ docker_images.nanoserver }}
+    }
+
+    if (!(docker images "{{ docker_images.servercore }}:latest" -q))
+    {
+        docker tag (docker images {{ docker_images.servercore }} -q) {{ docker_images.servercore }}
+    }
+    cd {{ install_path }}
+    docker build -t kubeletwin/pause .
 
 - name: Flannel | Download download.ps1
   win_get_url:
@@ -37,11 +55,6 @@
   win_shell: |
     cd C:\k
     .\download.ps1
-
-- name: Flannel | Create kubeletwin\pause image 
-  win_shell: |
-    cd C:\k
-    .\InstallImages.ps1
 
 - name: Flannel | Create hns network
   win_shell: |
