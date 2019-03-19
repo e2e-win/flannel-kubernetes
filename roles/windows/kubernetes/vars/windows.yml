@@ -31,7 +31,6 @@ flannel_cni_conf:
   windows_overlay: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/cni/config/cni.conf  
 
 kubernetes_scripts:
-  - https://github.com/$GithubSDNRepository/raw/master/Kubernetes/windows/hns.psm1
   - https://github.com/$GithubSDNRepository/raw/master/Kubernetes/flannel/start-kubelet.ps1
   - https://github.com/$GithubSDNRepository/raw/master/Kubernetes/flannel/start-kubeproxy.ps1
 
@@ -40,7 +39,7 @@ download_info:
 
 download_links:
   flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
-  download_script: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1"
+  hns_module: "https://github.com/Microsoft/SDN/raw/master/Kubernetes/windows/hns.psm1"
 
 docker_images:
   1809: "mcr.microsoft.com/windows/nanoserver:1809"

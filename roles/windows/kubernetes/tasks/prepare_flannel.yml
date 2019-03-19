@@ -107,38 +107,75 @@
      dest: "{{ install_path }}/cni/config/cni.conf" 
   when: FLANNEL_MODE == "overlay"
 
-- name: Flannel | Download download.ps1
+- name: Flannel | Download hns.psm1
   win_get_url:
-    url: "{{ download_links.download_script }}"
-    dest: C:\k\download.ps1
+     url: "{{ download_links.hns_module }}"
+     dest: "{{ install_path }}/{{ download_links.hns_module | basename }}"
 
-- name: Flannel | Start downloads
-  win_shell: |
-    cd C:\k
-    .\download.ps1
+- name: Flannel | Set network mode and name
+  set_fact:
+    networkName: "cbr0"
+    networkMode: "l2bridge"
+  when: FLANNEL_MODE == "host-gw"
 
-- name: Flannel | Create hns network
+- name: Flannel | Set network mode and name
+  set_fact:
+    networkName: "vxlan0"
+    networkMode: "overlay"
+  when: FLANNEL_MODE == "overlay"
+
+- name: Flannel | Cleanup old Hns Network
   win_shell: |
     $ErrorActionPreference = "Stop"
-    cd C:\k
-    Import-Module C:\k\hns.psm1
-    $hnsNetwork = Get-HnsNetwork | ? Name -eq "cbr0"
+    cd "{{ install_path }}"
+    Import-Module "{{ install_path }}/hns.psm1"
+    $hnsNetwork = Get-HnsNetwork | ? Name -eq "{{ networkName }}"
     if ($hnsNetwork)
     {
         docker ps -q | foreach {docker rm $_ -f} 
 
-        Write-Host "Cleaning up old HNS network found"
         Write-Host ($hnsNetwork | ConvertTo-Json -Depth 10) 
         Remove-HnsNetwork $hnsNetwork
     }
+  async: 10
+  poll: 0
+
+- name: Flannel | Create l2bridge External Network
+  win_shell: |
+    Import-Module "{{ install_path }}/hns.psm1"
     if(!(Get-HnsNetwork | ? Name -eq "External"))
     {
-        New-HNSNetwork -Type L2Bridge -AddressPrefix "192.168.255.0/30" -Gateway "192.168.255.1" -Name "External" -Verbose
+        New-HNSNetwork -Type {{ networkMode }} -AddressPrefix "192.168.255.0/30" -Gateway "192.168.255.1" -Name "External" -Verbose
     }
   async: 10
   poll: 0
+  when: FLANNEL_MODE == "host-gw"
 
 - name: Flannel | Wait for connection
   wait_for_connection:
     delay: 5
     timeout: 60
+
+- name: Flannel | Open firewall for overlay traffic
+  win_shell: |
+    # Open firewall for Overlay traffic
+    New-NetFirewallRule -Name OverlayTraffic4789UDP -Description "Overlay network traffic UDP" -Action Allow -LocalPort 4789 -Enabled True -DisplayName "Overlay Traffic 4789 UDP" -Protocol UDP -ErrorAction SilentlyContinue
+  when: FLANNEL_MODE == "overlay" 
+
+- name: Flannel | Create overlay External Network
+  win_shell: |
+    Import-Module "{{ install_path }}/hns.psm1"
+    if(!(Get-HnsNetwork | ? Name -eq "External"))
+    {
+        New-HNSNetwork -Type {{ networkMode }} -AddressPrefix "192.168.255.0/30" -Gateway "192.168.255.1" -Name "External" -SubnetPolicies @(@{Type = "VSID"; VSID = 9999; })  -Verbose
+    }
+  async: 10
+  poll: 0
+  when: FLANNEL_MODE == "overlay"  
+
+- name: Flannel | Wait for connection
+  wait_for_connection:
+    delay: 5
+    timeout: 60
+
+- meta: end_play
