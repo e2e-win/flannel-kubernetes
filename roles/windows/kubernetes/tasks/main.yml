@@ -9,12 +9,12 @@
 - name: Kubernetes | Fetch network details
   include_tasks: ./set_ip_facts.yml
 
-- name: Kubernetes | Register and start kubelet service
+- name: Kubernetes | Prepare Kubernetes env
   include_tasks: ./prepare_kubernetes.yml
 
-- name: Kubernetes | Flannel part
-  include_tasks: ./start_flannel.yml
+- name: Kubernetes | Prepare Flannel env
+  include_tasks: ./prepare_flannel.yml
 
-- name: Kubernetes | Set up kubelernetes services
-  include_tasks: ./create_services.yml
+- name: Kubernetes | Set up kubernetes and flannel services and starts them
+  include_tasks: ./create_and_start_services.yml
 

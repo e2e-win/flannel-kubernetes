@@ -1,5 +1,5 @@
 ---
-- name: Flannel | Download master.zip
+- name: Flannel | Download archive that contains flannel prerequisites
   win_get_url:
     url: "{{ download_links.flannel_master_zip }}"
     dest: C:\k\master.zip
