@@ -7,16 +7,16 @@
 
 - name: Flannel | Download flannel yaml
   get_url:
-    url: "{{ flannel_download_links.kube_flannel }}"
+    url: "{{ flannel_download_links.kube_flannel_vxlan }}"
     dest: /root/kube-flannel.yml
     mode: 0644
+  when: FLANNEL_MODE == "overlay"
 
-- name: Flannel | Select Flannel networking option
-  replace:
-    path: /root/kube-flannel.yml
-    regexp: 'vxlan'
-    replace: 'host-gw'
-    backup: yes
+- name: Flannel | Download flannel yaml
+  get_url:
+    url: "{{ flannel_download_links.kube_flannel_l2bridge }}"
+    dest: /root/kube-flannel.yml
+    mode: 0644
   when: FLANNEL_MODE == "host-gw"
 
 - name: Flannel | Apply flannel yaml
