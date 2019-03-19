@@ -4,11 +4,22 @@
     url: "{{ download_links.flannel_master_zip }}"
     dest: C:\k\master.zip
 
-- name: Flannel | Copy files
-  win_shell: |
-    Expand-Archive C:\k\master.zip -DestinationPath C:\k\master
-    mv C:\k\master/SDN-master/Kubernetes/flannel/l2bridge/* C:/k/
-    rm -recurse -force C:\k\master,C:\k\master.zip
+- name: Flannel | Unzip archive
+  win_unzip:
+    src: "{{ install_path }}/master.zip"
+    dest: "{{ install_path }}/master"
+    creates: "{{ install_path }}/master"
+
+- name: Flannel | Copy CNI and Flannel config
+  win_copy:
+    src: "{{ install_path }}/master/SDN-master/Kubernetes/flannel/l2bridge"
+    dest: "{{ install_path }}"
+    remote_src: yes
+
+- name: Flannel | Remove extracted files that are not used
+  win_file:
+    path: "{{ install_path }}/master"
+    state: absent
 
 - name: Flannel | Set kubeconfig
   win_environment:
