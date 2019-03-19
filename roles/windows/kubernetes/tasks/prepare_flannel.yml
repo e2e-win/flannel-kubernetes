@@ -57,6 +57,56 @@
     cd {{ install_path }}
     docker build -t kubeletwin/pause .
 
+- name: Flannel | Create flannel cni dir
+  win_file:
+    path: "{{ install_path }}/cni"
+    state: directory
+
+- name: Flannel | Create flannel cni config dir
+  win_file:
+    path: "{{ install_path }}/cni/config"
+    state: directory
+
+- name: Flannel | Download l2bridge cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.windows_l2bridge }}"
+  when: FLANNEL_MODE == "host-gw"
+
+- name: Flannel | Download overaly cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.windows_overlay }}"
+  when: FLANNEL_MODE == "overlay"
+
+- name: Flannel | Download l2bridge flannel net-conf
+  win_get_url:
+     url: "{{ flannel_net_conf.windows_l2bridge }}"
+     dest: "{{ install_path }}/net-conf.json" 
+  when: FLANNEL_MODE == "host-gw"
+
+- name: Flannel | Download overlay flannel net-conf
+  win_get_url:
+     url: "{{ flannel_net_conf.windows_overlay }}"
+     dest: "{{ install_path }}/net-conf.json" 
+  when: FLANNEL_MODE == "overlay"
+
+- name: Flannel | Download l2bridge flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.windows_l2bridge }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "host-gw"
+
+- name: Flannel | Download overlay flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.windows_overlay }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "overlay"
+
 - name: Flannel | Download download.ps1
   win_get_url:
     url: "{{ download_links.download_script }}"
