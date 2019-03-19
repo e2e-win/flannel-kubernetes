@@ -65,7 +65,7 @@
 - name: IP facts | Validate IP address on the preferred network interface
   win_shell: |
     $ErrorActionPreference = "Stop"
-    $netAddress = Get-NetIPAddress -InterfaceIndex "{{ configured_interface_index }}"
+    $netAddress = Get-NetIPAddress -InterfaceIndex "{{ configured_interface_index }}" -AddressFamily IPv4
     if(!$netAddress) {
         Throw "The network interface {{ configured_interface_index }} doesn't have any addresses configured"
     }
@@ -75,7 +75,7 @@
 
 - name: IP facts | Get the internal IP address
   register: cmd_output
-  win_shell: (Get-NetIPAddress -InterfaceIndex "{{ configured_interface_index }}").IPAddress
+  win_shell: (Get-NetIPAddress -InterfaceIndex "{{ configured_interface_index }}" -AddressFamily IPv4).IPAddress
 
 - name: IP facts | Set the host_internal_ip and host_public_ip facts
   set_fact:
