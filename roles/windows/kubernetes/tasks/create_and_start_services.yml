@@ -1,7 +1,15 @@
 ---
+- name: Kubernetes | Get helper.psm1 module
+  win_get_url:
+    url: "{{ download_links.helper_module }}"
+    dest: "{{ install_path }}/{{ download_links.helper_module | basename }}"
+  
+- set_fact:
+    helper_module_path: "{{ install_path }}/helper.psm1"
+
 - name: Kubernetes | Get current subnet
   win_shell: |
-    ipmo C:\k\helper.psm1
+    ipmo "{{ helper_module_path }}"
     Get-MgmtSubnet
   register: mgmtsubnet
 
@@ -10,36 +18,25 @@
 
 - name: Kubernetes | Update CNI Config
   win_shell: |
-    $ErrorActionPreference = "Stop"
-    $CNIConfig = "C:\k\cni\config\cni.conf"
-    $jsonSampleConfig = '{
-    "cniVersion": "0.2.0",
-    "name": "cbr0",
-    "type": "flannel",
-    "delegate": {
-       "type": "win-bridge",
-        "dns" : {
-          "Nameservers" : [ "10.96.0.10" ],
-          "Search": [ "svc.cluster.local" ]
-        },
-        "policies" : [
-          {
-            "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "ExceptionList": [ "{{ CLUSTER_SUBNET }}", "{{ SERVICE_CLUSTER_IP_RANGE }}", "{{ mgmtsubnet }}" ] }
-          },
-          {
-            "Name" : "EndpointPolicy", "Value" : { "Type" : "ROUTE", "DestinationPrefix": "{{ SERVICE_CLUSTER_IP_RANGE }}", "NeedEncap" : true }
-          },
-          {
-            "Name" : "EndpointPolicy", "Value" : { "Type" : "ROUTE", "DestinationPrefix": "{{ MASTER_IP }}/32", "NeedEncap" : true }
-          }
-        ]
-      }
-    }'
-    $configJson =  ConvertFrom-Json $jsonSampleConfig
-    if (Test-Path $CNIConfig) {
-        Clear-Content -Path $CNIConfig
-    }
-    Add-Content -Path $CNIConfig -Value (ConvertTo-Json $configJson -Depth 20)
+    ipmo "{{ helper_module_path }}"
+    Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" "{{ CLUSTER_SUBNET }}" "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" "{{ SERVICE_CLUSTER_IP_RANGE }}" "{{ mgmtsubnet }}" "{{ networkName }}" "{{ networkMode }}"
+
+- name: Kubernetes | Update net-conf.json
+  win_shell: |
+    ipmo "{{ helper_module_path }}"
+    Update-NetConfig "{{ install_path }}/net-conf.json" "{{ CLUSTER_SUBNET }}" "{{ networkName }}" "{{ networkMode }}"
+
+- name: Kubernetes | Create /etc/kube-flannel
+  win_file:
+     path: "{{ kube_flannel_path }}"
+     state: directory
+  when: FLANNEL_MODE == "overlay"
+
+- name: Kubernetes | Copy net-conf.json to kube-flannel dir
+  win_copy:
+    src: "{{ install_path }}/net-conf.json"
+    dest: "{{ kube_flannel_path }}/net-conf.json"
+    remote_src: True
 
 - name: Kubernetes | Check if Kubelet is installed
   win_service:
@@ -102,6 +99,7 @@
 - name: Kublet | Enable Kublet service failure flags
   win_shell: sc.exe failureflag kubelet 1
 
+<<<<<<< HEAD
 - name: Kube-proxy | Open firewall for kube-proxy port
   win_shell: |
     # Open firewall for Overlay traffic
@@ -160,6 +158,8 @@
 - name: Kube-proxy | Enable Kube-proxy service failure flags
   win_shell: sc.exe failureflag kube-proxy 1
 
+=======
+>>>>>>> Add flannel overlay mode to service start
 - name: Flanneld | Check if flanneld is installed
   win_service:
     name: flanneld
@@ -231,11 +231,99 @@
     start_mode: auto
     state: started
 
+- name: Kubernetes | Get source vip
+  win_shell: |
+    cd "{{ install_path }}"
+    ipmo "{{ helper_module_path }}"
+    GetSourceVip -ipAddress "{{ host_public_ip }}" -NetworkName "{{ networkName }}"
+    $sourceVipJSON = Get-Content sourceVip.json | ConvertFrom-Json
+    $sourceVip = $sourceVipJSON.ip4.ip.Split("/")[0]
+    $sourceVip
+  register: cmd_output
+  when: FLANNEL_MODE == "overlay"
+
+- name: Kubernetes | Set source vip fact
+  set_fact:
+    source_vip: "{{ cmd_output.stdout | trim }}"
+  when: FLANNEL_MODE == "overlay"
+
 - name: Kubelet | Restart service kubelet
   win_service:
     name: kubelet
     start_mode: auto
     state: restarted
+
+- name: Kube-proxy | Check if kube-proxy is installed
+  win_service:
+    name: kube-proxy
+  register: kube_proxy_service
+
+- name: Kube-proxy | Remove kubelet service if it exists
+  win_service:
+    name: kube-proxy
+    state: absent
+  when: kube_proxy_service.exists
+
+- name: Kube-proxy | Remove existing service wrapper config file
+  win_file:
+    state: absent
+    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+
+- name: Kube-proxy | Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/kube-proxy.log
+
+      service-name=kube-proxy
+
+      service-command="{{ install_path }}\\kube-proxy.exe"
+      --v=4 --proxy-mode=kernelspace 
+      --hostname-override="{{ ansible_hostname }}"
+      --feature-gates="WinOverlay=true"
+      --kubeconfig=c:\k\config
+      --network-name="vxlan0" --enable-dsr=false
+      --source-vip="{{ source_vip }}"
+      --cluster-cidr="{{ kubernetes_info.CLUSTER_SUBNET }}"
+  when: FLANNEL_MODE == "overlay"
+
+- name: Kube-proxy | Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\kube-proxy-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/kube-proxy.log
+
+      service-name=kube-proxy
+
+      service-command="{{ install_path }}\\kube-proxy.exe"
+      --v=4 --proxy-mode=kernelspace 
+      --hostname-override="{{ ansible_hostname }}"
+      --kubeconfig=c:\k\config
+      --feature-gates="WinDSR=false"
+      --network-name="cbr0" --enable-dsr=false
+      --cluster-cidr="{{ kubernetes_info.CLUSTER_SUBNET }}"
+  when: FLANNEL_MODE == "host-gw"
+
+- name: Kube-proxy | Create Kube-proxy Windows service
+  win_service:
+    name: kube-proxy
+    display_name: Kubernetes Kube-proxy
+    description: Kubernetes Kube-proxy service
+    path: >-
+      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\kube-proxy-servicewrapper-config.ini"
+
+- name: Kube-proxy | Set Kube-proxy service failure command
+  win_shell: >-
+    sc.exe failure kube-proxy reset=40 actions=restart/0/restart/0/run/30000
+    command="powershell.exe Move-Item
+    \\\`"{{ install_path }}/kube-proxy.log\\\`"
+    \\\`"{{ install_path }}/kube-proxy.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
+    Restart-Service kube-proxy"
+
+- name: Kube-proxy | Enable Kube-proxy service failure flags
+  win_shell: sc.exe failureflag kube-proxy 1
 
 - name: Kube-proxy | Start service kube-proxy
   win_service:

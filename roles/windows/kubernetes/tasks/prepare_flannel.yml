@@ -1,26 +1,4 @@
 ---
-- name: Flannel | Download archive that contains flannel prerequisites
-  win_get_url:
-    url: "{{ download_links.flannel_master_zip }}"
-    dest: "{{ install_path }}/master.zip"
-
-- name: Flannel | Unzip archive
-  win_unzip:
-    src: "{{ install_path }}/master.zip"
-    dest: "{{ install_path }}/master"
-    creates: "{{ install_path }}/master"
-
-- name: Flannel | Copy CNI and Flannel config
-  win_copy:
-    src: "{{ install_path }}/master/SDN-master/Kubernetes/flannel/l2bridge"
-    dest: "{{ install_path }}"
-    remote_src: yes
-
-- name: Flannel | Remove extracted files that are not used
-  win_file:
-    path: "{{ install_path }}/master"
-    state: absent
-
 - name: Flannel | Set kubeconfig
   win_environment:
     state: present
@@ -56,6 +34,11 @@
     }
     cd {{ install_path }}
     docker build -t kubeletwin/pause .
+
+- name: Flannel | Download flanneld binary
+  win_get_url:
+     url: "{{ flanneld_binary }}"
+     dest: "{{ install_path }}"
 
 - name: Flannel | Create flannel cni dir
   win_file:
@@ -129,7 +112,7 @@
     $ErrorActionPreference = "Stop"
     cd "{{ install_path }}"
     Import-Module "{{ install_path }}/hns.psm1"
-    $hnsNetwork = Get-HnsNetwork | ? Name -eq "{{ networkName }}"
+    $hnsNetwork = Get-HnsNetwork | ? Name -eq "External"
     if ($hnsNetwork)
     {
         docker ps -q | foreach {docker rm $_ -f} 
@@ -160,7 +143,15 @@
   win_shell: |
     # Open firewall for Overlay traffic
     New-NetFirewallRule -Name OverlayTraffic4789UDP -Description "Overlay network traffic UDP" -Action Allow -LocalPort 4789 -Enabled True -DisplayName "Overlay Traffic 4789 UDP" -Protocol UDP -ErrorAction SilentlyContinue
+  ignore_errors: True
   when: FLANNEL_MODE == "overlay" 
+
+- name: Flannel | Open firewall for kube-proxy port
+  win_shell: |
+    # Open firewall for Overlay traffic
+    New-NetFirewallRule -Name kubeProxy10250TCP -Description "TCP traffic for kube-proxy" -Action Allow -LocalPort 10250 -Enabled True -DisplayName "Kube-Proxy Traffic 10250 TCP" -Protocol TCP -ErrorAction SilentlyContinue
+  ignore_errors: True
+  when: FLANNEL_MODE == "overlay"
 
 - name: Flannel | Create overlay External Network
   win_shell: |
@@ -177,5 +168,3 @@
   wait_for_connection:
     delay: 5
     timeout: 60
-
-- meta: end_play
