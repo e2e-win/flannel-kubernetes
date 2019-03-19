@@ -2,7 +2,7 @@
 - name: Flannel | Download archive that contains flannel prerequisites
   win_get_url:
     url: "{{ download_links.flannel_master_zip }}"
-    dest: C:\k\master.zip
+    dest: "{{ install_path }}/master.zip"
 
 - name: Flannel | Unzip archive
   win_unzip:
@@ -25,7 +25,7 @@
   win_environment:
     state: present
     name: 'KUBECONFIG'
-    value: 'C:\k\config'
+    value: "{{ install_path }}/config"
     level: user
 
 - name: Flannel | Copy config
