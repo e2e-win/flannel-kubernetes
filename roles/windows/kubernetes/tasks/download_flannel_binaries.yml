@@ -1,0 +1,4 @@
+- name: Flannel | Download flannel binaries
+  win_get_url:
+    url: "{{ download_links.download_flanneld }}"
+    dest: "{{ download_dest.flanneld }}" 

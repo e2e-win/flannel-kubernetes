@@ -17,8 +17,43 @@ download_info:
 download_links:
   flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
   download_script: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/download.ps1"
+  download_flanneld: "https://github.com/coreos/flannel/releases/download/v0.11.0/flanneld.exe"
+  download_cni_flannel: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/flannel.exe"
+  download_cni_win_bridge: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/win-bridge.exe"
+  download_cni_host_local: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/host-local.exe"
+  download_net_conf: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/net-conf.json"
+  download_kubernetes_hns: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/hns.psm1"
+  download_kubernetes_install_images: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/InstallImages.ps1"
+  download_kubernetes_dockerfile: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/Dockerfile"
+  download_kubernetes_stop: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/stop.ps1"
+  download_kubernetes_start_kubelet: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/start-kubelet.ps1"
+  download_kubernetes_start_kubeproxy: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/start-kubeproxy.ps1"
+
+download_dest:
+  flanneld: "{{flanneld | default('C:/k/flanneld.exe')}}"
+  cni_flannel: "{{cni_flannel | default('C:/k/cni/flannel.exe')}}"
+  cni_win_bridge: "{{cni_win_bridge | default('C:/k/cni/win-bridge.exe')}}"
+  cni_host_local: "{{cni_host_local | default('C:/k/cni/host-local.exe')}}"
+  net_conf: "{{net_conf | default('C:/k/net-conf.json')}}"
+  hns: "{{hns | default('C:/k/hns.psm1')}}"
+  install_images: "{{install_images | default('C:/k/InstallImages.ps1')}}"
+  dockerfile: "{{dockerfile | default('C:/k/Dockerfile')}}"
+  stop: "{{stop | default('C:/k/stop.ps1')}}"
+  start_kubelet: "{{start_kubelet | default('C:/k/start-Kubelet.ps1')}}"
+  start_kubeproxy: "{{start_kubeproxy | default('C:/k/start-Kubeproxy.ps1')}}"
 
 docker_images:
   1809: "mcr.microsoft.com/windows/nanoserver:1809"
   nanoserver: "mcr.microsoft.com/windows/nanoserver"
   servercore: "mcr.microsoft.com/windows/servercore"
+
+setup_directories:
+  basedir: "{{basedir | default('C:/k')}}"
+  logdir: "{{logdir | default('C:/k')}}"
+  flanneldir: "{{flanneldir | default('C:/flannel')}}"
+  configdir: "{{configdir | default('C:/k/cni/config')}}"
+  kubeflannel: "{{kubeflannel | default('C:/etc/kube-flannel')}}"
+
+copy_files:
+  copy_src: "{{ copy_src | default('C:/k/flanneld.exe') }}"
+  copy_dest: "{{copy_dest | default('C:/flannel/flanneld.exe')}}"

@@ -1,0 +1,24 @@
+- name: Flannel | Create base directory
+  win_file:
+    path: "{{ setup_directories.basedir }}"
+    state: directory
+
+- name: Flannel | Create log directory
+  win_file:
+    path: "{{ setup_directories.logdir }}"
+    state: directory
+
+- name: Flannel | Create flannel directory
+  win_file:
+    path: "{{ setup_directories.flanneldir }}"
+    state: directory
+
+- name: Flannel | Create config directory
+  win_file:
+    path: "{{ setup_directories.configdir }}"
+    state: directory
+
+- name: Flannel | Create etc/kube-flannel directory
+  win_file:
+    path: "{{ setup_directories.kubeflannel }}"
+    state: directory

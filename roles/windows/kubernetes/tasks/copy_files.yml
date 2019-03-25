@@ -1,0 +1,5 @@
+- name: Flannel | Copy flanneld.exe
+  win_copy:
+    remote_src: yes
+    src: "{{ copy_files.copy_src }}"
+    dest: "{{ copy_files.copy_dest }}"

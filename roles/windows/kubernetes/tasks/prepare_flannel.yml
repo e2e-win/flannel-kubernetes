@@ -57,15 +57,29 @@
     cd {{ install_path }}
     docker build -t kubeletwin/pause .
 
-- name: Flannel | Download download.ps1
+- name: Flannel | Download helper.psm1
   win_get_url:
-    url: "{{ download_links.download_script }}"
-    dest: C:\k\download.ps1
+    url: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/helper.psm1"
+    dest: "C:/k/helper.psm1"
 
-- name: Flannel | Start downloads
+- name: Flannel | Import module helper
   win_shell: |
-    cd C:\k
-    .\download.ps1
+    ipmo "C:\k\helper.psm1"
+
+- name: Flannel | Create directories
+  include_tasks: ./create_directories.yml
+
+- name: Flannel | Download kubernetes scripts
+  include_tasks: ./download_kubernetes_scripts.yml
+
+- name: Flannel | Download Flannel binaries
+  include_tasks: ./download_flannel_binaries.yml
+
+- name: Flannel | Download CNI binaries
+  include_tasks: ./download_cni_binaries.yml
+
+- name: Flannel | Copy downloaded files
+  include_tasks: copy_files.yml  
 
 - name: Flannel | Create hns network
   win_shell: |
