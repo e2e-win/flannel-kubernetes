@@ -59,27 +59,63 @@
 
 - name: Flannel | Download helper.psm1
   win_get_url:
-    url: "https://raw.githubusercontent.com/papagalu/custom-flannel-startscript/master/helper.psm1"
-    dest: "C:/k/helper.psm1"
+    url: "{{ download_links.download_helper }}"
+    dest: "{{ download_dest.helper }}"
 
-- name: Flannel | Import module helper
-  win_shell: |
-    ipmo "C:\k\helper.psm1"
+- name: Flannel | Create base directory
+  win_file:
+    path: "{{ download_info.install_path }}"
+    state: directory
 
-- name: Flannel | Create directories
-  include_tasks: ./create_directories.yml
+- name: Flannel | Create log directory
+  win_file:
+    path: "{{ setup_directories.logdir }}"
+    state: directory
 
-- name: Flannel | Download kubernetes scripts
-  include_tasks: ./download_kubernetes_scripts.yml
+- name: Flannel | Create config directory
+  win_file:
+    path: "{{ setup_directories.configdir }}"
+    state: directory
 
-- name: Flannel | Download Flannel binaries
-  include_tasks: ./download_flannel_binaries.yml
+- name: Flannel | Create etc/kube-flannel directory
+  win_file:
+    path: "{{ setup_directories.kubeflannel }}"
+    state: directory
 
-- name: Flannel | Download CNI binaries
-  include_tasks: ./download_cni_binaries.yml
+- name: Flannel | Download hns
+  win_get_url:
+    url: "{{ download_links.download_kubernetes_hns }}"
+    dest: "{{ download_dest.hns }}"
 
-- name: Flannel | Copy downloaded files
-  include_tasks: copy_files.yml  
+- name: Flannel | Download Dockerfile
+  win_get_url:
+    url: "{{ download_links.download_kubernetes_dockerfile }}"
+    dest: "{{ download_dest.dockerfile }}"
+
+- name: Flannel | Download flannel binaries
+  win_get_url:
+    url: "{{ download_links.download_flanneld }}"
+    dest: "{{ download_info.install_path }}"
+
+- name: Flannel | Download CNI Flannel
+  win_get_url:
+    url: "{{ download_links.download_cni_flannel }}"
+    dest: "{{ download_dest.cni_flannel }}"
+
+- name: Flannel | Download CNI win-bridge
+  win_get_url:
+    url: "{{ download_links.download_cni_win_bridge }}"
+    dest: "{{ download_dest.cni_win_bridge }}"
+
+- name: Flannel | Download CNI host-local
+  win_get_url:
+    url: "{{ download_links.download_cni_host_local }}"
+    dest: "{{ download_dest.cni_host_local }}"
+
+- name: Flannel | Download net-conf
+  win_get_url:
+    url: "{{ download_links.download_net_conf }}"
+    dest: "{{ download_dest.net_conf }}"
 
 - name: Flannel | Create hns network
   win_shell: |
