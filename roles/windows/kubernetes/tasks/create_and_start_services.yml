@@ -102,6 +102,12 @@
 - name: Kublet | Enable Kublet service failure flags
   win_shell: sc.exe failureflag kubelet 1
 
+- name: Kube-proxy | Open firewall for kube-proxy port
+  win_shell: |
+    # Open firewall for Overlay traffic
+    New-NetFirewallRule -Name kubeProxy10250TCP -Description "TCP traffic for kube-proxy" -Action Allow -LocalPort 10250 -Enabled True -DisplayName "Kube-Proxy Traffic 10250 TCP" -Protocol TCP -ErrorAction SilentlyContinue
+  ignore_errors: True
+
 - name: Kube-proxy | Check if kube-proxy is installed
   win_service:
     name: kube-proxy
