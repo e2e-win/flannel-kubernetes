@@ -22,16 +22,7 @@
 
 - name: Flannel | Prepare kubeletwin\pause image
   win_shell: |
-    docker pull "{{ docker_images.1809 }}"
-    if (!(docker images "{{ docker_images.nanoserver }}:latest" -q))
-    {
-        docker tag (docker images {{ docker_images.nanoserver }} -q) {{ docker_images.nanoserver }}
-    }
-
-    if (!(docker images "{{ docker_images.servercore }}:latest" -q))
-    {
-        docker tag (docker images {{ docker_images.servercore }} -q) {{ docker_images.servercore }}
-    }
+    docker pull "{{ docker_images.nanoserver }}"
     cd {{ install_path }}
     docker build -t kubeletwin/pause .
 

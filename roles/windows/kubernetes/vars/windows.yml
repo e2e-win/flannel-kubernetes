@@ -46,6 +46,5 @@ download_links:
   helper_module: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/helper.psm1"
 
 docker_images:
-  1809: "mcr.microsoft.com/windows/nanoserver:1809"
-  nanoserver: "mcr.microsoft.com/windows/nanoserver"
-  servercore: "mcr.microsoft.com/windows/servercore"
+  nanoserver: "mcr.microsoft.com/windows/nanoserver:1809"
+  servercore: "mcr.microsoft.com/windows/servercore:1809"
