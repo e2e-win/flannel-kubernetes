@@ -11,7 +11,7 @@ master: false
 minion: true
 controller: false
 
-docker_version: 18.03.1-ee-3
+docker_version: 18.09
 # install_path: where kubernetes binaries and CNI plugin will be installed
 install_path: C:\k
 service_wrapper_link: https://github.com/cloudbase/OpenStackService/releases/download/v0.1/service-wrapper-sdk10-x64.zip

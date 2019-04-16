@@ -12,6 +12,14 @@
     dest: C:\k\config
     remote_src: yes
 
+# This + the image creation should no be here.
+# Docker might not be started at this point in Azure
+- name: Flannel | Make sure Docker is started
+  win_service:
+    name: Docker
+    start_mode: auto
+    state: started
+
 - name: Flannel | Create Dockerfile for kubeletwin\pause image
   win_lineinfile:
     path: "{{ install_path }}/Dockerfile"

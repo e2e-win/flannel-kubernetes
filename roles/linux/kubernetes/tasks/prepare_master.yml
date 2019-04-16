@@ -308,6 +308,78 @@
       msg: Could not fetch Token, make sure kubectl can connect to the API server
   when: TOKEN == ""
 
+- name: Kubernetes Master | Check azure.json exists in local path
+  local_action: stat path="{{ AZURE_CCM_LOCAL_PATH }}"
+  register: azure_ccm_local_exists
+  when: AZURE_CCM
+
+- name: Kubernetes Master | Fail if azure.json local path does not exist
+  fail:
+    msg: azure.json does not exist locally
+  when: AZURE_CCM and azure_ccm_local_exists.stat.exists == false
+
+- name: Kubernetes Master | Copy azure.json to master node
+  copy:
+    src: "{{ AZURE_CCM_LOCAL_PATH }}"
+    dest: "/etc/kubernetes/azure.json"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Kubernetes Master | Create CCM spec
+  blockinfile:
+    path: /etc/kubernetes/azure-ccm.yaml
+    create: yes
+    marker: "# {mark} Ansible automatic example generation"
+    block: |
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: cloud-controller-manager
+        namespace: kube-system
+        labels:
+          tier: control-plane
+          component: cloud-controller-manager
+      spec:
+        hostNetwork: true
+        containers:
+          - name: cloud-controller-manager
+            image: k8s.gcr.io/cloud-controller-manager-amd64:v1.14.0
+            imagePullPolicy: IfNotPresent
+            command: ["cloud-controller-manager"]
+            args: ["--allocate-node-cidrs=true", "--cloud-config=/etc/kubernetes/azure.json", "--cloud-provider=azure", "--cluster-cidr={{ kubernetes_cluster_info.CLUSTER_SUBNET }}", "--kubeconfig=/etc/kubernetes/kubeconfig.yaml", "--leader-elect=true", "--route-reconciliation-period=10s", "--v=2"]
+            volumeMounts:
+              - name: etc-kubernetes
+                mountPath: /etc/kubernetes
+              - name: etc-ssl
+                mountPath: /etc/ssl
+                readOnly: true
+              - name: var-lib-kubelet
+                mountPath: /var/lib/kubelet
+              - name: msi
+                mountPath: /var/lib/waagent/ManagedIdentity-Settings
+                readOnly: true
+        volumes:
+          - name: etc-kubernetes
+            hostPath:
+              path: /etc/kubernetes
+          - name: etc-ssl
+            hostPath:
+              path: /etc/ssl
+          - name: var-lib-kubelet
+            hostPath:
+              path: /var/lib/kubelet
+          - name: msi
+            hostPath:
+              path: /var/lib/waagent/ManagedIdentity-Settings
+
+- name: Kubernetes Master | Deploy CCM
+  shell: kubectl create -f /etc/kubernetes/azure-ccm.yaml
+  changed_when: false
+  register: deploy_ccm
+  until: deploy_ccm.stdout | trim != ""
+  when: AZURE_CCM
+
 - name: Kubernetes Master | Ensure /etc/hosts is updated
   lineinfile:
     path: /etc/hosts

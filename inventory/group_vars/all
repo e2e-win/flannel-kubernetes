@@ -15,7 +15,11 @@ K8S_DNS_SERVICE_IP: "10.96.0.10"
 K8S_API_SERVICE_IP: "10.96.0.1"
 
 # flannel mode
-FLANNEL_MODE: "overlay"
+FLANNEL_MODE: "host-gw"
+
+# CCM config
+# AZURE_CCM: true
+# AZURE_CCM_LOCAL_PATH = /local/path/for/azure.json
 
 # set this to true to build kubernetes only on master and then
 # distribute on the minion nodes. Set this to false if you have different
