@@ -19,7 +19,7 @@
 - name: Kubernetes | Update CNI Config
   win_shell: |
     ipmo "{{ helper_module_path }}"
-    Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" "{{ CLUSTER_SUBNET }}" "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" "{{ SERVICE_CLUSTER_IP_RANGE }}" "{{ mgmtsubnet }}" "{{ networkName }}" "{{ networkMode }}"
+    Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" -clusterCIDR "{{ CLUSTER_SUBNET }}" -KubeDnsServiceIP  "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" -serviceCIDR "{{ SERVICE_CLUSTER_IP_RANGE }}" -InterfaceName "Ethernet 2" -NetworkName "{{ networkName }}" -NetworkMode "{{ networkMode }}"
 
 - name: Kubernetes | Update net-conf.json
   win_shell: |
@@ -30,7 +30,6 @@
   win_file:
      path: "{{ kube_flannel_path }}"
      state: directory
-  when: FLANNEL_MODE == "overlay"
 
 - name: Kubernetes | Copy net-conf.json to kube-flannel dir
   win_copy:
