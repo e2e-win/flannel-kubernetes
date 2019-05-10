@@ -53,6 +53,7 @@
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
+     timeout: 60
   with_items:
     - "{{ flannel_binaries.windows_overlay }}"
   when: FLANNEL_MODE == "overlay"
@@ -60,7 +61,8 @@
 - name: Flannel | Download l2bridge flannel net-conf
   win_get_url:
      url: "{{ flannel_net_conf.windows_l2bridge }}"
-     dest: "{{ install_path }}/net-conf.json" 
+     dest: "{{ install_path }}/net-conf.json"
+     timeout: 60 
   when: FLANNEL_MODE == "host-gw"
 
 - name: Flannel | Download overlay flannel net-conf
