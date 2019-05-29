@@ -210,7 +210,6 @@
       [Service]
       ExecStart=/usr/bin/kubelet \
         --network-plugin=cni \
-        --allow-privileged=true \
         --hostname-override={{ ansible_hostname }} \
         --cni-bin-dir=/opt/cni/bin \
         --cni-conf-dir=/etc/cni/net.d \

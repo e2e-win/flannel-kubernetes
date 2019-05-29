@@ -43,7 +43,6 @@
       [Service]
       ExecStart=/usr/bin/kubelet \
         --network-plugin=cni \
-        --allow-privileged=true \
         --hostname-override={{ ansible_hostname }} \
         --cluster-dns={{ kubernetes_cluster_info.K8S_DNS_SERVICE_IP }} \
         --cluster-domain={{ kubernetes_cluster_info.K8S_DNS_DOMAIN }} \

@@ -65,7 +65,6 @@
 
       service-command="{{ install_path }}\\kubelet.exe"
       --hostname-override="{{ ansible_hostname }}"
-      --allow-privileged=true
       --enable-debugging-handlers
       --cluster-dns="{{ kubernetes_info.K8S_DNS_SERVICE_IP }}"
       --cluster-domain="{{ kubernetes_info.K8S_DNS_DOMAIN }}"
