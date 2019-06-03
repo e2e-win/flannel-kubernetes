@@ -64,6 +64,7 @@
       service-name=kubelet
 
       service-command="{{ install_path }}\\kubelet.exe"
+      --feature-gates="KubeletPodResources=false"
       --hostname-override="{{ ansible_hostname }}"
       --enable-debugging-handlers
       --cluster-dns="{{ kubernetes_info.K8S_DNS_SERVICE_IP }}"
