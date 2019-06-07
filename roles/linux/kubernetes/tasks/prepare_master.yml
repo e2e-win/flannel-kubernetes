@@ -325,6 +325,7 @@
     owner: root
     group: root
     mode: 0755
+  when: AZURE_CCM
 
 - name: Kubernetes Master | Create CCM spec
   blockinfile:
@@ -372,6 +373,7 @@
           - name: msi
             hostPath:
               path: /var/lib/waagent/ManagedIdentity-Settings
+  when: AZURE_CCM
 
 - name: Kubernetes Master | Deploy CCM
   shell: kubectl create -f /etc/kubernetes/azure-ccm.yaml
