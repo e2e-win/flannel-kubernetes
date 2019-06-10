@@ -1,0 +1,28 @@
+---
+- name: Containerd | Check if Docker is installed
+  win_service:
+    name: Docker
+  register: docker_service
+
+- name: Containerd | Remove Docker
+  block:
+    - name: Containerd | Remove Docker
+      include_tasks: ./remove_docker.yml
+  when: docker_service.exists
+
+- name: Containerd | Check if Containerd is installed
+  win_service:
+    name: containerd
+  register: containerd_service
+
+- name: Contaienrd | Install containerd
+  block:
+     - name: Containerd | Install containerd
+       include_tasks: ./install_containerd.yaml
+  when: not containerd_service.exists
+
+- name: Containerd | Start the Containerd service
+  win_service:
+    name: Containerd
+    start_mode: auto
+    state: started

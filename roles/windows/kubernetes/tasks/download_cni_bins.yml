@@ -1,0 +1,80 @@
+- name: Flannel | Download flannel meta plugin
+  win_get_url:
+     url: "{{ flannel_binaries.flannel_meta_plugin }}"
+     dest: "{{ install_path }}/cni/{{ flannel_binaries.flannel_meta_plugin | basename }}"
+
+- name: Flannel | Download host-local ipam plugin
+  win_get_url:
+     url: "{{ flannel_binaries.host_local_ipam_plugin }}"
+     dest: "{{ install_path }}/cni/{{ flannel_binaries.host_local_ipam_plugin | basename }}"
+
+- name: Win-Bridge | Download l2bridge cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.winbridge }}"
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "cniwin"
+
+- name: Sdnbridge | Download l2bridge cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.sdnbridge }}"
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
+
+- name: Win-overlay | Download overaly cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+     timeout: 60
+  with_items:
+    - "{{ flannel_binaries.winoverlay }}"
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "cniwin"
+
+- name: Sdnbridge | Download overaly cni binaries
+  win_get_url:
+     url: "{{ item }}"
+     dest: "{{ install_path }}/cni/{{ item | basename }}"
+     timeout: 60
+  with_items:
+    - "{{ flannel_binaries.sdnoverlay }}"
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"
+
+- name: Flannel | Download l2bridge flannel net-conf
+  win_get_url:
+     url: "{{ flannel_net_conf.windows_l2bridge }}"
+     dest: "{{ install_path }}/net-conf.json"
+     timeout: 60 
+  when: FLANNEL_MODE == "host-gw"
+
+- name: Flannel | Download overlay flannel net-conf
+  win_get_url:
+     url: "{{ flannel_net_conf.windows_overlay }}"
+     dest: "{{ install_path }}/net-conf.json" 
+  when: FLANNEL_MODE == "overlay"
+
+- name: Win-bridge | Download l2bridge flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.winbridge }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "cniwin"
+
+- name: Win-overlay | Download overlay flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.winoverlay }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "cniwin"
+
+- name: sdnoverlay | Download overlay flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.sdnbridge }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
+
+- name: sdnoverlay | Download overlay flannel cni-conf
+  win_get_url:
+     url: "{{ flannel_cni_conf.sdnoverlay }}"
+     dest: "{{ install_path }}/cni/config/cni.conf" 
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"

@@ -1,6 +1,6 @@
 # username and password of the nodes (if the nodes have different passwords, please look into host_vars folder)
-ansible_user: Administrator
-ansible_password: P@ssw0rd
+ansible_user: azureuser
+ansible_password: Passw0rd1234
 # This is the default port for HTTPS used by winrm
 ansible_port: 5986
 ansible_connection: winrm
@@ -12,6 +12,11 @@ minion: true
 controller: false
 
 docker_version: 18.09
+
+# container runtime to use: docker or containerd
+CONTAINER_RUNTIME: docker
+containerd_url: https://www.dropbox.com/s/37w2r9iqsyaxsd9/windows-cri-containerd.zip?dl=1
+
 # install_path: where kubernetes binaries and CNI plugin will be installed
 install_path: C:\k
 service_wrapper_link: https://github.com/cloudbase/OpenStackService/releases/download/v0.1/service-wrapper-sdk10-x64.zip

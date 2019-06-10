@@ -1,0 +1,28 @@
+---
+- name: Containerd | Download containerd package
+  win_get_url:
+     url: "{{ containerd_url }}"
+     dest: "{{ install_path }}\\containerd.zip"
+
+- name: Containerd | Unzip the service-wrapper zip archive
+  win_unzip:
+    src: "{{ install_path }}/containerd.zip"
+    dest: "{{ install_path }}"
+
+- name: Containerd | Create the service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\containerd-servicewrapper-config.ini'
+    create: yes
+    line: |-
+      service-name=Containerd
+      service-command={{ install_path }}/containerd.exe
+      log-file={{ install_path }}/containerd.log
+
+- name: Containerd | Create the Containerd Windows service using the service wrapper
+  win_service:
+    name: Containerd
+    display_name: "Containerd Windows Agent"
+    path: >-
+      "{{ install_path }}\servicewrapper.exe" --config "{{ install_path }}\containerd-servicewrapper-config.ini"
+    state: stopped
+    start_mode: disabled

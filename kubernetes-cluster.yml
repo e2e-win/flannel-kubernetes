@@ -54,6 +54,10 @@
         name: windows/requirements
     - import_role:
         name: windows/docker
+      when: CONTAINER_RUNTIME == "docker"
+    - import_role:
+        name: windows/containerd
+      when: CONTAINER_RUNTIME == "containerd"
     - import_role:
         name: windows/kubernetes
 

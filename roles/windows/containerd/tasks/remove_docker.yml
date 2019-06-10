@@ -1,6 +1,16 @@
 ---
-- name: Windows | Include vars
-  include_vars: "{{ playbook_dir }}/roles/windows/requirements/vars/{{ ansible_os_family|lower }}.yml"
+
+- name: Docker | Uninstall Docker Package
+  win_shell: |
+    Uninstall-Package -Name docker -ProviderName DockerMsftProvider
+    Uninstall-Module -Name DockerMsftProvider
+
+- name: Docker | Remove current default nat network
+  win_shell: |
+    Get-HNSNetwork | Where-Object { $_.Name -eq "nat" } | Remove-HNSNetwork
+
+- name: Reinstall required features that may have been removed with Docker
+  include_tasks: "{{ playbook_dir }}/roles/windows/requirements/tasks/main.yml"
 
 - name: Windows | Expect reboot_required to false
   set_fact:
@@ -26,6 +36,3 @@
 - name: Windows | Reboot the node
   win_reboot:
   when: reboot_required
-
-- name: Windows | Fetch Windows utils
-  include_tasks: ./fetch_utils.yml

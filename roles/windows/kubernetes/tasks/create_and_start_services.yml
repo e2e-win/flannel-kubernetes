@@ -20,6 +20,13 @@
   win_shell: |
     ipmo "{{ helper_module_path }}"
     Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" -clusterCIDR "{{ CLUSTER_SUBNET }}" -KubeDnsServiceIP  "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" -serviceCIDR "{{ SERVICE_CLUSTER_IP_RANGE }}" -InterfaceName "Ethernet 2" -NetworkName "{{ networkName }}" -NetworkMode "{{ networkMode }}"
+  when: CNIBINS == "cniwin"
+
+- name: Kubernetes | Update CNI Config
+  win_shell: |
+    ipmo "{{ helper_module_path }}"
+    Update-SDNCNIConfig "{{ install_path }}/cni/config/cni.conf" -clusterCIDR "{{ CLUSTER_SUBNET }}" -KubeDnsServiceIP  "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" -serviceCIDR "{{ SERVICE_CLUSTER_IP_RANGE }}" -InterfaceName "Ethernet 2" -NetworkName "{{ networkName }}" -NetworkMode "{{ networkMode }}"
+  when: CNIBINS == "sdnms"
 
 - name: Kubernetes | Update net-conf.json
   win_shell: |
@@ -37,6 +44,41 @@
     dest: "{{ kube_flannel_path }}/net-conf.json"
     remote_src: True
 
+- name: Kubernetes | Create cni containerd cni bins dir
+  win_file:
+    path: "{{ containerd_cni_path }}/bin"
+    state: directory
+  when: CONTAINER_RUNTIME == "containerd"
+
+- name: Kubernetes | Create cni containerd cni config dir
+  win_file:
+    path: "{{ containerd_cni_path }}/config"
+    state: directory
+  when: CONTAINER_RUNTIME == "containerd"
+
+# Is there a better way for this? (atuvenie)
+- name: Kubernetes | Get cni binaries paths on remote machine
+  win_find:
+    paths: "{{ install_path }}/cni"
+    patterns: [ '*.exe' ]
+  register: cni_bins
+  when: CONTAINER_RUNTIME == "containerd"
+
+- name: Kubernetes | Move cni binaries to containerd cni path
+  win_copy:
+     src: "{{ item.path }}"
+     dest: "{{ containerd_cni_path }}/bin/"
+     remote_src: True
+  with_items:  "{{ cni_bins.files }}"
+  when: CONTAINER_RUNTIME == "containerd"
+
+- name: Kubernetes | Move cni config to containerd cni path
+  win_copy:
+     src: "{{ install_path }}/cni/config/cni.conf"
+     dest: "{{ containerd_cni_path }}/config/"
+     remote_src: True
+  when: CONTAINER_RUNTIME == "containerd"
+
 - name: Kubernetes | Check if Kubelet is installed
   win_service:
     name: kubelet
@@ -53,7 +95,7 @@
     state: absent
     path: '{{ install_path }}\kubelet-servicewrapper-config.ini'
 
-- name: Kubelet | Create the new service wrapper config file
+- name: Kubelet | Docker - Create the new service wrapper config file
   win_lineinfile:
     path: '{{ install_path }}\kubelet-servicewrapper-config.ini'
     create: yes
@@ -78,6 +120,35 @@
       --node-ip="{{ host_public_ip }}"
       --enforce-node-allocatable=""
       --resolv-conf=""
+  when: CONTAINER_RUNTIME == "docker"
+
+- name: Kubelet | Containerd - Create the new service wrapper config file
+  win_lineinfile:
+    path: '{{ install_path }}\kubelet-servicewrapper-config.ini'
+    create: yes
+    line: >
+      log-file={{ install_path }}/kubelet.log
+
+      service-name=kubelet
+
+      service-command="{{ install_path }}\\kubelet.exe"
+      --feature-gates="KubeletPodResources=false"
+      --hostname-override="{{ ansible_hostname }}"
+      --enable-debugging-handlers
+      --cluster-dns="{{ kubernetes_info.K8S_DNS_SERVICE_IP }}"
+      --cluster-domain="{{ kubernetes_info.K8S_DNS_DOMAIN }}"
+      --pod-infra-container-image="kubeletwin/pause"
+      --kubeconfig="{{ install_path }}\\kubeconfig.yaml"
+      --hairpin-mode=promiscuous-bridge
+      --image-pull-progress-deadline=20m
+      --cgroups-per-qos=false
+      --node-ip="{{ host_public_ip }}"
+      --enforce-node-allocatable=""
+      --resolv-conf=""
+      --container-runtime-endpoint=npipe:\\\\.\\pipe\containerd-containerd
+      --container-runtime=remote
+  when: CONTAINER_RUNTIME == "containerd"
+
 
 - name: Kubelet | Create Kublet Windows service
   win_service:

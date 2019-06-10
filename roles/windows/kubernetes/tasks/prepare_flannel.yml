@@ -19,6 +19,7 @@
     name: Docker
     start_mode: auto
     state: started
+  when: CONTAINER_RUNTIME == "docker"
 
 - name: Flannel | Create Dockerfile for kubeletwin\pause image
   win_lineinfile:
@@ -27,12 +28,14 @@
     line: |
       FROM {{ docker_images.nanoserver }}
       CMD cmd /c ping -t localhost
+  when: CONTAINER_RUNTIME == "docker"
 
 - name: Flannel | Prepare kubeletwin\pause image
   win_shell: |
     docker pull "{{ docker_images.nanoserver }}"
     cd {{ install_path }}
     docker build -t kubeletwin/pause .
+  when: CONTAINER_RUNTIME == "docker"
 
 - name: Flannel | Download flanneld binary
   win_get_url:
@@ -49,47 +52,8 @@
     path: "{{ install_path }}/cni/config"
     state: directory
 
-- name: Flannel | Download l2bridge cni binaries
-  win_get_url:
-     url: "{{ item }}"
-     dest: "{{ install_path }}/cni/{{ item | basename }}"
-  with_items:
-    - "{{ flannel_binaries.windows_l2bridge }}"
-  when: FLANNEL_MODE == "host-gw"
-
-- name: Flannel | Download overaly cni binaries
-  win_get_url:
-     url: "{{ item }}"
-     dest: "{{ install_path }}/cni/{{ item | basename }}"
-     timeout: 60
-  with_items:
-    - "{{ flannel_binaries.windows_overlay }}"
-  when: FLANNEL_MODE == "overlay"
-
-- name: Flannel | Download l2bridge flannel net-conf
-  win_get_url:
-     url: "{{ flannel_net_conf.windows_l2bridge }}"
-     dest: "{{ install_path }}/net-conf.json"
-     timeout: 60 
-  when: FLANNEL_MODE == "host-gw"
-
-- name: Flannel | Download overlay flannel net-conf
-  win_get_url:
-     url: "{{ flannel_net_conf.windows_overlay }}"
-     dest: "{{ install_path }}/net-conf.json" 
-  when: FLANNEL_MODE == "overlay"
-
-- name: Flannel | Download l2bridge flannel cni-conf
-  win_get_url:
-     url: "{{ flannel_cni_conf.windows_l2bridge }}"
-     dest: "{{ install_path }}/cni/config/cni.conf" 
-  when: FLANNEL_MODE == "host-gw"
-
-- name: Flannel | Download overlay flannel cni-conf
-  win_get_url:
-     url: "{{ flannel_cni_conf.windows_overlay }}"
-     dest: "{{ install_path }}/cni/config/cni.conf" 
-  when: FLANNEL_MODE == "overlay"
+- name: Flannel | Download cni bins & config
+  include_tasks: ./download_cni_bins.yml
 
 - name: Flannel | Download hns.psm1
   win_get_url:

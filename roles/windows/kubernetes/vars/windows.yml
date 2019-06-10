@@ -13,14 +13,16 @@ kubernetes_info:
 
 flanneld_binary: "https://github.com/adelina-t/flannel-kubernetes/releases/download/test/flanneld.exe"
 flannel_binaries:
-  windows_l2bridge:
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/flannel.exe
+  flannel_meta_plugin: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/flannel.exe
+  host_local_ipam_plugin: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/host-local.exe
+  winbridge:
     - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/win-bridge.exe
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/host-local.exe
-  windows_overlay:
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/flannel.exe
+  winoverlay:
     - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/cni/win-overlay.exe
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/host-local.exe
+  sdnbridge:
+    - https://k8swin.blob.core.windows.net/k8s-windows/sdnbridge.exe
+  sdnoverlay:
+    - https://k8swin.blob.core.windows.net/k8s-windows/sdnoverlay.exe
 
     
 flannel_net_conf:
@@ -28,8 +30,10 @@ flannel_net_conf:
   windows_overlay: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/net-conf.json
 
 flannel_cni_conf:
-  windows_l2bridge: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/config/cni.conf
-  windows_overlay: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/cni/config/cni.conf  
+  winbridge: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/config/cni.conf
+  winoverlay: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/cni/config/cni.conf  
+  sdnbridge: https://raw.githubusercontent.com/adelina-t/flannel-kubernetes/flannel_cricontainerd/misc/cni-bridge.conf
+  sdnoverlay: https://raw.githubusercontent.com/adelina-t/flannel-kubernetes/flannel_cricontainerd/misc/cni-overlay.conf
 
 kubernetes_scripts:
   - https://github.com/$GithubSDNRepository/raw/master/Kubernetes/flannel/start-kubelet.ps1
@@ -43,8 +47,10 @@ kube_flannel_path: 'C:/etc/kube-flannel'
 download_links:
   flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
   hns_module: "https://github.com/Microsoft/SDN/raw/master/Kubernetes/windows/hns.psm1"
-  helper_module: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/windows/helper.psm1"
+  helper_module: "https://raw.githubusercontent.com/adelina-t/flannel-kubernetes/flannel_cricontainerd/misc/helper.psm1"
 
 docker_images:
   nanoserver: "mcr.microsoft.com/windows/nanoserver:1809"
   servercore: "mcr.microsoft.com/windows/servercore:1809"
+
+containerd_cni_path: "c:\\Program Files\\containerd\\data\\cni"
