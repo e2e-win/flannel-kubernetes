@@ -459,7 +459,7 @@ Update-SDNCNIConfig
             "name": "<NetworkMode>",
             "type": "flannel",
             "delegate": {
-               "master": "Ethernet"
+               "master": "Ethernet",
                "type": "sdnbridge.exe",
                "capabilities":{
                 "portMappings":true
