@@ -7,8 +7,13 @@
     name: Docker
   register: docker_service
 
+- name: Docker | Uninstall existing docker
+  win_shell: |
+    $ErrorActionPreference = "Stop"
+    Uninstall-Package -Name "Docker" -ProviderName "DockerMsftProvider" -Force
+  when: docker_service.exists
+
 - name: Docker | Install docker
   block:
     - name: Docker | Install docker
       include_tasks: ./install_docker.yml
-  when: not docker_service.exists
