@@ -16,13 +16,44 @@
     - "{{ flannel_binaries.winbridge }}"
   when: FLANNEL_MODE == "host-gw" and CNIBINS == "cniwin"
 
+- name: Sdnbridge | Set sdnbridge_bins_present fact
+  set_fact: 
+    sdnbridge_bins_present: false
+  when: CNIBINS == "sdnms"
+
+- name: Sdnbridge | Check if l2bridge cni binaries exist on ansible machine
+  local_action: stat path="{{ ansible_tmp_dir }}/{{ item | basename }}"
+  register: sdnbridge_stat
+  with_items:
+    - "{{ flannel_binaries.sdnbridge }}"
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
+
+- block:
+  - name: Sdnbridge | Checking all binaries
+    set_fact:
+      sdnbridge_bins_present: true
+    with_items:
+      - "{{sdnbridge_stat.results}}"
+    loop_control:
+      label: "{{item.item}}"
+    when: item.stat.exists
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
+
 - name: Sdnbridge | Download l2bridge cni binaries
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
   with_items:
     - "{{ flannel_binaries.sdnbridge }}"
-  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms" and not sdnbridge_bins_present
+
+- name: Sdnbridge | Copy l2bridge cni binaries from ansible machine
+  win_copy:
+    src: "{{ ansible_tmp_dir }}/{{ item | basename }}"
+    dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.sdnbridge }}"
+  when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms" and sdnbridge_bins_present
 
 - name: Win-overlay | Download overaly cni binaries
   win_get_url:
@@ -33,14 +64,45 @@
     - "{{ flannel_binaries.winoverlay }}"
   when: FLANNEL_MODE == "overlay" and CNIBINS == "cniwin"
 
-- name: Sdnbridge | Download overaly cni binaries
+- name: Sdnoverlay | Set sdnoverlay_bins_present fact
+  set_fact: 
+    sdnoverlay_bins_present: false
+  when: CNIBINS == "sdnms"
+
+- name: Sdnoverlay | Check if overlay cni binaries exist on ansible machine
+  local_action: stat path="{{ ansible_tmp_dir }}/{{ item | basename }}"
+  register: sdnoverlay_stat
+  with_items:
+    - "{{ flannel_binaries.sdnoverlay }}"
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"
+
+- block:
+  - name: Sdnoverlay | Checking all binaries
+    set_fact:
+      sdnoverlay_bins_present: true
+    with_items:
+      - "{{sdnoverlay_stat.results}}"
+    loop_control:
+      label: "{{item.item}}"
+    when: item.stat.exists 
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"
+
+- name: Sdnoverlay | Download overaly cni binaries
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
      timeout: 60
   with_items:
     - "{{ flannel_binaries.sdnoverlay }}"
-  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms" and not sdnoverlay_bins_present
+
+- name: Sdnoverlay | Copy overlay cni binaries from ansible machine
+  win_copy:
+    src: "{{ ansible_tmp_dir }}/{{ item | basename }}"
+    dest: "{{ install_path }}/cni/{{ item | basename }}"
+  with_items:
+    - "{{ flannel_binaries.sdnoverlay }}"
+  when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms" and sdnoverlay_bins_present
 
 - name: Flannel | Download l2bridge flannel net-conf
   win_get_url:

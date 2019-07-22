@@ -1,13 +1,45 @@
 ---
+
+- name: Containerd | Set facts
+  set_fact:
+    containerd_bins_present: false
+
+- name: Containerd | Check if containerd bins present on ansible machine
+  local_action: stat path="{{ ansible_tmp_dir }}/{{ item }}"
+  register: containerd_stat
+  with_items:
+    - "containerd.exe"
+    - "ctr.exe"
+
+- name: Containerd | Checking all binaries
+  set_fact:
+    containerd_bins_present: true
+  with_items:
+    - "{{containerd_stat.results}}"
+  loop_control:
+    label: "{{item.item}}"
+  when: item.stat.exists 
+
 - name: Containerd | Download containerd package
   win_get_url:
      url: "{{ containerd_url }}"
      dest: "{{ install_path }}\\containerd.zip"
+  when: not containerd_bins_present
 
-- name: Containerd | Unzip the service-wrapper zip archive
+- name: Containerd | Unzip the containerd zip archive
   win_unzip:
     src: "{{ install_path }}/containerd.zip"
     dest: "{{ install_path }}"
+  when: not containerd_bins_present
+
+- name: Containerd | Copy the containerd binaries
+  win_copy:
+    src: "{{ansible_tmp_dir}}/{{item}}"
+    dest: "{{ install_path }}/{{item}}"
+  with_items:
+    - "containerd.exe"
+    - "ctr.exe"
+  when: containerd_bins_present
 
 - name: Containerd | Create the service wrapper config file
   win_lineinfile:
