@@ -11,7 +11,7 @@ master: false
 minion: true
 controller: false
 
-docker_version: 18.09.3
+docker_version: 18.09.8
 
 # container runtime to use: docker or containerd
 CONTAINER_RUNTIME: docker
