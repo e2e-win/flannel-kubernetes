@@ -5,6 +5,10 @@
     Find-PackageProvider -Name "Nuget" | Install-PackageProvider -Force
     Install-Module -Name "DockerMsftProvider" -Repository "PSGallery" -Force
     Install-Package -Name "Docker" -ProviderName "DockerMsftProvider" -Force -RequiredVersion "{{ docker_version }}"
+  register: cmd_output
+  until: cmd_output.rc == 0
+  retries: 10
+  delay: 3
 
 # Remove the existing default Docker Windows service because we'll recreate it
 # later on using the Windows service wrapper.This will allow us to capture
