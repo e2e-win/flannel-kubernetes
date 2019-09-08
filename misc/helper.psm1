@@ -470,7 +470,7 @@ Update-SDNCNIConfig
                 },
                 "AdditionalArgs" : [
                   {
-                    "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNaT", "Exceptions": [ "<ClusterCIDR>", "<ServerCIDR>", "<MgmtSubnet>" ] }
+                    "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNaT", "Settings": { "Exceptions": [ "<ClusterCIDR>", "<ServerCIDR>", "<MgmtSubnet>" ] }}
                   },
                   {
                     "Name" : "EndpointPolicy", "Value" : { "Type" : "SdnRoute", "Settings": { "DestinationPrefix": "<ServerCIDR>", "NeedEncap" : true }}
