@@ -47,7 +47,7 @@ kube_flannel_path: 'C:/etc/kube-flannel'
 download_links:
   flannel_master_zip: "https://github.com/Microsoft/SDN/archive/master.zip"
   hns_module: "https://github.com/Microsoft/SDN/raw/master/Kubernetes/windows/hns.psm1"
-  helper_module: "https://raw.githubusercontent.com/adelina-t/flannel-kubernetes/flannel_cricontainerd/misc/helper.psm1"
+  helper_module: "https://raw.githubusercontent.com/e2e-win/flannel-kubernetes/master/misc/helper.psm1"
 
 docker_images:
   nanoserver: "mcr.microsoft.com/windows/nanoserver:1809"
