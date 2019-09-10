@@ -489,9 +489,9 @@ Update-SDNCNIConfig
               $configJson.delegate.dns.Nameservers[0] = $KubeDnsServiceIP
               $configJson.delegate.dns.Search[0] = "svc.cluster.local"
           
-              $configJson.delegate.AdditionalArgs[0].Value.Exceptions[0] = $clusterCIDR
-              $configJson.delegate.AdditionalArgs[0].Value.Exceptions[1] = $serviceCIDR
-              $configJson.delegate.AdditionalArgs[0].Value.Exceptions[2] = Get-MgmtSubnet($InterfaceName)
+              $configJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions[0] = $clusterCIDR
+              $configJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions[1] = $serviceCIDR
+              $configJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions[2] = Get-MgmtSubnet($InterfaceName)
           
               $configJson.delegate.AdditionalArgs[1].Value.Settings.DestinationPrefix  = $serviceCIDR
               $configJson.delegate.AdditionalArgs[2].Value.Settings.DestinationPrefix  = ((Get-MgmtIpAddress($InterfaceName)) + "/32")
@@ -510,7 +510,7 @@ Update-SDNCNIConfig
                 },
                 "AdditionalArgs" : [
                   {
-                    "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "Exceptions": [ "<ClusterCIDR>", "<ServerCIDR>" ] }
+                    "Name" : "EndpointPolicy", "Value" : { "Type" : "OutBoundNAT", "Settings": { "Exceptions": [ "<ClusterCIDR>", "<ServerCIDR>" ] }}
                   },
                   {
                     "Name" : "EndpointPolicy", "Value" : { "Type" : "SdnRoute", "Settings": { "DestinationPrefix": "<ServerCIDR>", "NeedEncap" : true }}
@@ -530,8 +530,8 @@ Update-SDNCNIConfig
               $configJson.delegate.dns.Nameservers[0] = $KubeDnsServiceIp
               $configJson.delegate.dns.Search[0] = "svc.cluster.local"
           
-              $configJson.delegate.AdditionalArgs[0].Value.Exceptions[0] = $clusterCIDR
-              $configJson.delegate.AdditionalArgs[0].Value.Exceptions[1] = $serviceCIDR
+              $configJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions[0] = $clusterCIDR
+              $configJson.delegate.AdditionalArgs[0].Value.Settings.Exceptions[1] = $serviceCIDR
           
               $configJson.delegate.AdditionalArgs[1].Value.Settings.DestinationPrefix  = $serviceCIDR
               $configJson.delegate.AdditionalArgs[2].Value.Settings.ProviderAddress  = (Get-MgmtIpAddress($InterfaceName))
