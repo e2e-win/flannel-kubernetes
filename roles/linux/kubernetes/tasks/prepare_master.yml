@@ -19,7 +19,7 @@
         --anonymous-auth=false \
         --secure-port=443 \
         --advertise-address={{ host_internal_ip }} \
-        --feature-gates="WindowsRunAsUserName=true"
+        --feature-gates="WindowsRunAsUserName=true" \
         --admission-control=MutatingAdmissionWebhook,ValidatingAdmissionWebhook,NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
         --tls-cert-file={{ kubernetes_certificates.directory }}/apiserver.pem \
         --tls-private-key-file={{ kubernetes_certificates.directory }}/apiserver-key.pem \
