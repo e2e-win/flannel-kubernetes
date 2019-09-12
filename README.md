@@ -88,6 +88,8 @@ ansible-playbook -i inventory/hosts kubernetes-cluster.yml --private-key=ssh_pri
 - All binaries used by the playbooks will be downloaded from locations specified in the vars. If you want to use your custom
 builds ( recommended ) you should have them present on the ansible machine in the ansible tmp folder (ansible_root/tmp). Ansible will take care of copying them to the k8s master / k8s minion nodes.
 
+- Containerd only supports the sdnms CNI bins option.
+
 Currently supported Linux nodes:
 - 16.04
 
