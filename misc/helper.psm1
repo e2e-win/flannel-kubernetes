@@ -360,7 +360,10 @@ Update-CNIConfig
             "cniVersion": "0.2.0",
             "name": "<NetworkMode>",
             "type": "flannel",
-            "delegate": {
+            "capabilities": {
+	       "dns": true
+	    },
+	    "delegate": {
                "type": "win-bridge",
                 "dns" : {
                   "Nameservers" : [ "10.96.0.10" ],
@@ -400,6 +403,9 @@ Update-CNIConfig
             "cniVersion": "0.2.0",
             "name": "<NetworkMode>",
             "type": "flannel",
+	    "capabilities": {
+	       "dns": true 
+	    },
             "delegate": {
                "type": "win-overlay",
                 "dns" : {
@@ -458,12 +464,12 @@ Update-SDNCNIConfig
             "cniVersion": "0.2.0",
             "name": "<NetworkMode>",
             "type": "flannel",
-            "delegate": {
+            "capabilities": {
+               "dns": true
+	    },
+	    "delegate": {
                "master": "Ethernet",
                "type": "sdnbridge.exe",
-               "capabilities":{
-                "portMappings":true
-                },
                 "dns" : {
                   "Nameservers" : [ "10.96.0.10" ],
                   "Search": [ "svc.cluster.local" ]
@@ -502,6 +508,9 @@ Update-SDNCNIConfig
             "cniVersion": "0.2.0",
             "name": "<NetworkMode>",
             "type": "flannel",
+	    "capabilities": {
+	       "dns": true
+	    },
             "delegate": {
                "type": "sdnoverlay.exe",
                 "dns" : {
