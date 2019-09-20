@@ -13,12 +13,12 @@ kubernetes_info:
 
 flanneld_binary: "https://github.com/adelina-t/flannel-kubernetes/releases/download/test/flanneld.exe"
 flannel_binaries:
-  flannel_meta_plugin: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/flannel.exe
-  host_local_ipam_plugin: https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/host-local.exe
+  flannel_meta_plugin: https://k8swin.blob.core.windows.net/k8s-windows/flannel.exe
+  host_local_ipam_plugin: https://k8swin.blob.core.windows.net/k8s-windows/host-local.exe
   winbridge:
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/cni/win-bridge.exe
+    - https://k8swin.blob.core.windows.net/k8s-windows/win-bridge.exe
   winoverlay:
-    - https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/overlay/cni/win-overlay.exe
+    - https://k8swin.blob.core.windows.net/k8s-windows/win-overlay.exe
   sdnbridge:
     - https://k8swin.blob.core.windows.net/k8s-windows/sdnbridge.exe
   sdnoverlay:
