@@ -10,7 +10,7 @@
 - name: Docker | Uninstall existing docker
   win_shell: |
     $ErrorActionPreference = "Stop"
-    Uninstall-Package -Name "Docker" -ProviderName "DockerMsftProvider" -Force -Recurse
+    Uninstall-Package -Name "Docker" -ProviderName "DockerMsftProvider" -Force
   when: docker_service.exists
 
 - name: Docker | Install docker
