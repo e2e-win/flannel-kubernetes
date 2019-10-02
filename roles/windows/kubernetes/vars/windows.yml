@@ -50,7 +50,7 @@ download_links:
   helper_module: "https://raw.githubusercontent.com/e2e-win/flannel-kubernetes/master/misc/helper.psm1"
 
 docker_images:
-  nanoserver: "mcr.microsoft.com/windows/nanoserver:1809"
-  servercore: "mcr.microsoft.com/windows/servercore:1809"
+  nanoserver: "mcr.microsoft.com/windows/nanoserver:1903"
+  servercore: "mcr.microsoft.com/windows/servercore:1903"
 
 containerd_cni_path: "c:\\Program Files\\containerd\\data\\cni"

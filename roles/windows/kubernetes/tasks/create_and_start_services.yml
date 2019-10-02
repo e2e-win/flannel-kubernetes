@@ -10,7 +10,7 @@
 - name: Kubernetes | Get current subnet
   win_shell: |
     ipmo "{{ helper_module_path }}"
-    Get-MgmtSubnet
+    Get-MgmtSubnet -InterfaceName *
   register: mgmtsubnet
 
 - set_fact:
@@ -19,7 +19,7 @@
 - name: Kubernetes | Update CNI Config
   win_shell: |
     ipmo "{{ helper_module_path }}"
-    Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" -clusterCIDR "{{ CLUSTER_SUBNET }}" -KubeDnsServiceIP  "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" -serviceCIDR "{{ SERVICE_CLUSTER_IP_RANGE }}" -InterfaceName "Ethernet 2" -NetworkName "{{ networkName }}" -NetworkMode "{{ networkMode }}"
+    Update-CNIConfig "{{ install_path }}/cni/config/cni.conf" -clusterCIDR "{{ CLUSTER_SUBNET }}" -KubeDnsServiceIP  "{{ kubernetes_info.K8S_DNS_SERVICE_IP }}" -serviceCIDR "{{ SERVICE_CLUSTER_IP_RANGE }}" -InterfaceName "*" -NetworkName "{{ networkName }}" -NetworkMode "{{ networkMode }}"
   when: CNIBINS == "cniwin"
 
 - name: Kubernetes | Update CNI Config

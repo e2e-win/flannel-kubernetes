@@ -6,6 +6,16 @@
 - name: Docker | Include vars
   include_vars: "{{ ansible_distribution|lower }}.yml"
 
+- name: Docker | Install prepreq
+  action: "{{ docker_package_info.pkg_mgr }}"
+  args:
+    pkg: apt-transport-https
+    state: present
+    update_cache: yes
+  register: prepreq_task_result
+  until: prepreq_task_result|succeeded
+  retries: 3
+
 - name: Docker | Ensure docker repository public key is installed
   action: "{{ docker_repo_key_info.pkg_key }}"
   args:
@@ -30,6 +40,7 @@
     pkg: "{{item.name}}"
     force: "{{item.force|default(omit)}}"
     state: present
+    update_cache: yes
   register: docker_task_result
   until: docker_task_result|succeeded
   retries: 3

@@ -15,7 +15,7 @@ K8S_DNS_SERVICE_IP: "10.96.0.10"
 K8S_API_SERVICE_IP: "10.96.0.1"
 
 # flannel mode
-FLANNEL_MODE: "overlay"
+FLANNEL_MODE: "host-gw"
 
 # cni binaries
 # cniwin refers to the win-bridge and win-overlay cni plugins maintainerd in containernetworking/plugins

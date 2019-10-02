@@ -1,8 +1,8 @@
 [kube-master]
-k8s-master
+10.107.7.57
 
 [kube-minions-linux]
-k8s-linux-1
 
 [kube-minions-windows]
-k8s-win-1
+10.107.7.76
+
