@@ -6,6 +6,7 @@
 
 - name: Kubernetes bins | Checking if linux kubernetes bins have been downloaded
   action: stat path="{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/server/kubernetes/server/bin/{{item}}"
+  become: false
   register: linux_kube_stat_bins_exists
   with_items:
     - "{{kubernetes_binaries.linux_common}}"
@@ -67,6 +68,7 @@
 
 - name: Kubernetes bins | Checking if windows kubernetes bins have been downloaded
   action: stat path="{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes/node/bin/{{item}}"
+  become: false
   register: windows_kube_stat_bins_exists
   with_items:
     - "{{kubernetes_binaries.windows}}"
