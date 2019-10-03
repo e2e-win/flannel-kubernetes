@@ -19,6 +19,7 @@
 - name: Kubernetes | Checking if binaries are already present on ansible machine
   local_action: stat path="{{ansible_tmp_dir}}/{{item}}"
   register: stat_bins_exists
+  become: false
   with_items:
     - "{{kubernetes_binaries.linux_common}}"
     - "{{kubernetes_binaries.linux_master}}"
