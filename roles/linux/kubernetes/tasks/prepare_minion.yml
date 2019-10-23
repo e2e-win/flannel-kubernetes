@@ -114,7 +114,10 @@
     dest: "/opt/cni/bin/cni.tgz"
     force_basic_auth: yes
     timeout: 30
+  register: result
+  until: result is succeeded
   retries: 3
+  delay: 10
 
 - name: Kubernetes Minion | Unarchive tar.gz
   unarchive:

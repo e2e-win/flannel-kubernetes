@@ -41,6 +41,10 @@
   win_get_url:
      url: "{{ flanneld_binary }}"
      dest: "{{ install_path }}"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Flannel | Create flannel cni dir
   win_file:
@@ -59,6 +63,10 @@
   win_get_url:
      url: "{{ download_links.hns_module }}"
      dest: "{{ install_path }}/{{ download_links.hns_module | basename }}"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Flannel | Set network mode and name
   set_fact:

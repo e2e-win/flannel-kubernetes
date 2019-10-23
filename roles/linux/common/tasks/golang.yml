@@ -42,7 +42,10 @@
         force_basic_auth: yes
         mode: 0755
         timeout: 30
+      register: result
+      until: result is succeeded
       retries: 3
+      delay: 10
 
     - name: golang | Install golang
       unarchive:

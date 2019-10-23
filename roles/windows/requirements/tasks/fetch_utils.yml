@@ -16,7 +16,10 @@
         url: "{{ service_wrapper_link }}"
         dest: "{{ install_path }}/service-wrapper.zip"
         timeout: 60
+      register: result
+      until: result is succeeded
       retries: 3
+      delay: 10
 
     - name: Windows | Unzip the service-wrapper zip archive
       win_unzip:
@@ -52,8 +55,10 @@
       win_get_url:
         url: "{{ ps_tools_link }}"
         dest: "{{ install_path }}/PSTools.zip"
+      register: result
+      until: result is succeeded
       retries: 10
-      delay: 5
+      delay: 10
 
     - name: Windows | Unzip PSTools.zip archive
       win_unzip:
