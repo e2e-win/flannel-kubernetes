@@ -36,7 +36,10 @@
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}/kubernetes.tar.gz"
         force_basic_auth: yes
         timeout: 30
+      register: result
+      until: result is succeeded
       retries: 3
+      delay: 10
 
     - name: Kubernetes bins | Unarchive tar.gz
       unarchive:
@@ -90,7 +93,10 @@
         dest: "{{ kubernetes_binaries_info.tmp_download_path }}/winbins.tar.gz"
         force_basic_auth: yes
         timeout: 30
+      register: result
+      until: result is succeeded
       retries: 3
+      delay: 10
 
     - name: Kubernetes bins | Unarchive Windows binaries
       unarchive:

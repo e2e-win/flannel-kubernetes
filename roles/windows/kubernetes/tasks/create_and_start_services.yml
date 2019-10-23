@@ -3,6 +3,10 @@
   win_get_url:
     url: "{{ download_links.helper_module }}"
     dest: "{{ install_path }}/{{ download_links.helper_module | basename }}"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
   
 - set_fact:
     helper_module_path: "{{ install_path }}/helper.psm1"

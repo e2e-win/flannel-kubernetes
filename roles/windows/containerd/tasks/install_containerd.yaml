@@ -3,6 +3,10 @@
   win_get_url:
      url: "{{ containerd_url }}"
      dest: "{{ install_path }}\\containerd.zip"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Containerd | Unzip the service-wrapper zip archive
   win_unzip:

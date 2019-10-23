@@ -11,6 +11,10 @@
     dest: /root/kube-flannel.yml
     mode: 0644
   when: FLANNEL_MODE == "overlay"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Flannel | Download flannel yaml
   get_url:
@@ -18,6 +22,10 @@
     dest: /root/kube-flannel.yml
     mode: 0644
   when: FLANNEL_MODE == "host-gw"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Flannel | Apply flannel yaml
   shell: |
@@ -28,6 +36,10 @@
     url: "{{ flannel_download_links.node_selector_patch }}"
     dest: /root/node-selector-patch.yml
     mode: 0644
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Flannel | Apply NodeSelector to kube-flannel-ds
   shell: |
