@@ -9,6 +9,7 @@
   register: containerd_stat
   with_items:
     - "containerd.exe"
+    - "containerd-shim-runhcs-v1.exe"
     - "ctr.exe"
 
 - name: Containerd | Checking all binaries
