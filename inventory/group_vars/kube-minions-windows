@@ -16,6 +16,7 @@ docker_version: 18.09.8
 # container runtime to use: docker or containerd
 CONTAINER_RUNTIME: docker
 containerd_url: https://www.dropbox.com/s/37w2r9iqsyaxsd9/windows-cri-containerd.zip?dl=1
+containerd_cni_bin: "c:\\Program Files\\containerd\\data\\cni"
 
 # install_path: where kubernetes binaries and CNI plugin will be installed
 install_path: C:\k

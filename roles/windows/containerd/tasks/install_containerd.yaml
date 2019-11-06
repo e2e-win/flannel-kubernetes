@@ -18,7 +18,7 @@
     - "{{containerd_stat.results}}"
   loop_control:
     label: "{{item.item}}"
-  when: item.stat.exists 
+  when: item.stat.exists
 
 - name: Containerd | Download containerd package
   win_get_url:
@@ -45,13 +45,53 @@
     - "ctr.exe"
   when: containerd_bins_present
 
+- name: Containerd | Generate containerd config
+  win_shell: |
+    {{ install_path }}\containerd.exe config dump > {{ install_path }}\containerd_default_config.toml
+  args:
+    executable: cmd.exe
+
+- name: Containerd | Copy containerd config to ansible host
+  fetch:
+    flat: yes
+    src: "{{ install_path }}/containerd_default_config.toml"
+    dest: "{{ ansible_tmp_dir }}/containerd_default_config.toml"
+
+- name: Containerd | Generate replace config python script
+  delegate_to: localhost
+  lineinfile:
+    path: "{{ ansible_tmp_dir }}/replace.py"
+    create: yes
+    line: |-
+      import toml
+
+      config_file='{{ ansible_tmp_dir }}/containerd_default_config.toml'
+      parsed=toml.load(config_file,_dict=dict)
+
+      parsed['plugins']['io.containerd.grpc.v1.cri']['cni']['bin_dir']='{{ containerd_cni_bin }}\\bin'
+      parsed['plugins']['io.containerd.grpc.v1.cri']['cni']['conf_dir']='{{ containerd_cni_bin }}\\config'
+
+      with open('{{ ansible_tmp_dir }}/containerd_modified.toml','w') as f:
+         toml.dump(parsed,f)
+
+- name: Containerd | Replace cni bin and conf path in containerd config file
+  script: "{{ ansible_tmp_dir }}/replace.py"
+  args:
+    executable: python
+  delegate_to: localhost
+
+- name: Containerd | Copy Containerd modfified config to remote host
+  win_copy:
+    src: "{{ ansible_tmp_dir }}/containerd_modified.toml"
+    dest: "{{ install_path }}/containerd.toml"
+
 - name: Containerd | Create the service wrapper config file
   win_lineinfile:
-    path: '{{ install_path }}\containerd-servicewrapper-config.ini'
+    path: '{{ install_path }}/containerd-servicewrapper-config.ini'
     create: yes
     line: |-
       service-name=Containerd
-      service-command={{ install_path }}/containerd.exe
+      service-command={{ install_path }}/containerd.exe --config "{{ install_path }}/containerd.toml"
       log-file={{ install_path }}/containerd.log
 
 - name: Containerd | Create the Containerd Windows service using the service wrapper
