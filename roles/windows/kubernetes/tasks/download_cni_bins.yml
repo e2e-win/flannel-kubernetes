@@ -2,6 +2,7 @@
   win_get_url:
      url: "{{ flannel_binaries.flannel_meta_plugin }}"
      dest: "{{ install_path }}/cni/{{ flannel_binaries.flannel_meta_plugin | basename }}"
+     follow_redirects: "all"
   register: result
   until: result is succeeded
   retries: 3
@@ -11,6 +12,7 @@
   win_get_url:
      url: "{{ flannel_binaries.host_local_ipam_plugin }}"
      dest: "{{ install_path }}/cni/{{ flannel_binaries.host_local_ipam_plugin | basename }}"
+     follow_redirects: "all"
   register: result
   until: result is succeeded
   retries: 3
@@ -20,6 +22,7 @@
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
+     follow_redirects: "all"
   with_items:
     - "{{ flannel_binaries.winbridge }}"
   when: FLANNEL_MODE == "host-gw" and CNIBINS == "cniwin"
@@ -55,6 +58,7 @@
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
+     follow_redirects: "all"
   with_items:
     - "{{ flannel_binaries.sdnbridge }}"
   when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
@@ -76,6 +80,7 @@
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
+     follow_redirects: "all"
      timeout: 60
   with_items:
     - "{{ flannel_binaries.winoverlay }}"
@@ -112,6 +117,7 @@
   win_get_url:
      url: "{{ item }}"
      dest: "{{ install_path }}/cni/{{ item | basename }}"
+     follow_redirects: "all"
      timeout: 60
   with_items:
     - "{{ flannel_binaries.sdnoverlay }}"
@@ -134,6 +140,7 @@
   win_get_url:
      url: "{{ flannel_net_conf.windows_l2bridge }}"
      dest: "{{ install_path }}/net-conf.json"
+     follow_redirects: "all"
      timeout: 60 
   when: FLANNEL_MODE == "host-gw"
   register: result
@@ -145,6 +152,7 @@
   win_get_url:
      url: "{{ flannel_net_conf.windows_overlay }}"
      dest: "{{ install_path }}/net-conf.json" 
+     follow_redirects: "all"
   when: FLANNEL_MODE == "overlay"
   register: result
   until: result is succeeded
@@ -155,6 +163,7 @@
   win_get_url:
      url: "{{ flannel_cni_conf.winbridge }}"
      dest: "{{ install_path }}/cni/config/cni.conf" 
+     follow_redirects: "all"
   when: FLANNEL_MODE == "host-gw" and CNIBINS == "cniwin"
   register: result
   until: result is succeeded
@@ -165,6 +174,7 @@
   win_get_url:
      url: "{{ flannel_cni_conf.winoverlay }}"
      dest: "{{ install_path }}/cni/config/cni.conf" 
+     follow_redirects: "all"
   when: FLANNEL_MODE == "overlay" and CNIBINS == "cniwin"
   register: result
   until: result is succeeded
@@ -175,6 +185,7 @@
   win_get_url:
      url: "{{ flannel_cni_conf.sdnbridge }}"
      dest: "{{ install_path }}/cni/config/cni.conf" 
+     follow_redirects: "all"
   when: FLANNEL_MODE == "host-gw" and CNIBINS == "sdnms"
   register: result
   until: result is succeeded
@@ -185,6 +196,7 @@
   win_get_url:
      url: "{{ flannel_cni_conf.sdnoverlay }}"
      dest: "{{ install_path }}/cni/config/cni.conf" 
+     follow_redirects: "all"
   when: FLANNEL_MODE == "overlay" and CNIBINS == "sdnms"
   register: result
   until: result is succeeded

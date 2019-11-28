@@ -41,6 +41,7 @@
   win_get_url:
      url: "{{ flanneld_binary }}"
      dest: "{{ install_path }}"
+     follow_redirects: "all"
   register: result
   until: result is succeeded
   retries: 3
@@ -63,6 +64,7 @@
   win_get_url:
      url: "{{ download_links.hns_module }}"
      dest: "{{ install_path }}/{{ download_links.hns_module | basename }}"
+     follow_redirects: "all"
   register: result
   until: result is succeeded
   retries: 3

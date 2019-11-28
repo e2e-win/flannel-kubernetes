@@ -25,6 +25,7 @@
   win_get_url:
      url: "{{ containerd_url }}"
      dest: "{{ install_path }}\\containerd.zip"
+     follow_redirects: "all"
   register: result
   until: result is succeeded
   retries: 3
