@@ -77,6 +77,12 @@
       with open('{{ ansible_tmp_dir }}/containerd_modified.toml','w') as f:
          toml.dump(parsed,f)
 
+- name: Containerd | Pip install toml
+  delegate_to: localhost
+  shell: pip install toml
+  args:
+    executable: /bin/bash
+
 - name: Containerd | Replace cni bin and conf path in containerd config file
   script: "{{ ansible_tmp_dir }}/replace.py"
   args:
