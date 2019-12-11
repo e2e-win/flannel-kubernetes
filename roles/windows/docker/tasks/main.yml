@@ -7,10 +7,15 @@
     name: Docker
   register: docker_service
 
-- name: Docker | Uninstall existing docker
+- name: Docker | Stop docker service before removal
+  win_service:
+    name: Docker
+    state: stopped
+
+- name: Docker | Remove docker files
   win_shell: |
     $ErrorActionPreference = "Stop"
-    Uninstall-Package -Name "Docker" -ProviderName "DockerMsftProvider" -Force
+    Remove-Item "C:\\Program Files\\Docker" -Recurse
   when: docker_service.exists
 
 - name: Docker | Install docker
