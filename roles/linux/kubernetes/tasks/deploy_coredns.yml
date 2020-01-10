@@ -13,7 +13,7 @@
 
 - name: CoreDNS | Add pods insecure to coredns conf
   lineinfile:
-    path: {{ kubernetes_dns.tmp_path }}/coredns-checkout/kubernetes/coredns.yaml.sed
+    path: "{{ kubernetes_dns.tmp_path }}/coredns-checkout/kubernetes/coredns.yaml.sed"
     line: "            pods insecure"
     insertafter: kubernetes
   
