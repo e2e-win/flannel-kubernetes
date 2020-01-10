@@ -15,5 +15,7 @@
   shell: |
     set -o errexit
     cd {{ kubernetes_dns.tmp_path }}/coredns-checkout/kubernetes
+    pods_insecure="            pods insecure"
+    sed  -i "/kubernetes/a ${pods_insecure// /\\ }" coredns.yaml.sed
     kubectl delete --namespace=kube-system deployment coredns --wait --ignore-not-found=true
     ./deploy.sh -i {{K8S_DNS_SERVICE_IP}} -d {{K8S_DNS_DOMAIN}} -s coredns.yaml.sed | kubectl apply --wait -f -
