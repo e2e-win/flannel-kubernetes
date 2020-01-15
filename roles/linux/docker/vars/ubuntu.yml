@@ -2,7 +2,11 @@
 docker_package_info:
   pkg_mgr: apt
   pkgs:
-    - name: "docker-engine"
+    - name: "docker-ce"
+      force: yes
+    - name: "docker-ce-cli"
+      force: yes
+    - name: "containerd.io"
       force: yes
 
 docker_repo_key_info:
