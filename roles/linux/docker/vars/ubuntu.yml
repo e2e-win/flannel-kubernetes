@@ -2,14 +2,18 @@
 docker_package_info:
   pkg_mgr: apt
   pkgs:
-    - name: "docker-engine"
+    - name: "docker-ce"
+      force: yes
+    - name: "docker-ce-cli"
+      force: yes
+    - name: "containerd.io"
       force: yes
 
 docker_repo_key_info:
   pkg_key: apt_key
   url: https://download.docker.com/linux/ubuntu/gpg
   repo_keys:
-    - 58118E89F3A912897C070ADBF76221572C52609D
+    - 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 
 docker_repo_info:
   pkg_repo: apt_repository
