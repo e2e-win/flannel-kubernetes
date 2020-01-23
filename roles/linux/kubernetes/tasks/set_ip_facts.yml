@@ -1,9 +1,4 @@
 ---
-# Gather IP facts from ipify.org
-- name: get my public IP
-  ipify_facts:
-  retries: 3
-
 - name: set internal IP
   set_fact:
     host_internal_ip: "{{ ansible_default_ipv4.address }}"
