@@ -2,3 +2,4 @@
 docker_info:
   install_dir: C:/Program Files/Docker
   config_dir: C:/ProgramData/docker/config
+  pid_file: C:/ProgramData/docker/docker.pid

@@ -19,6 +19,11 @@
     name: Docker
     state: absent
 
+- name: Docker | Remove leftover docker pid file
+  win_file:
+    path: "{{ docker_info.pid_file }}"
+    state: absent
+
 - name: Docker | Create the service wrapper config file
   win_lineinfile:
     path: '{{ docker_info.install_dir }}\dockerd-servicewrapper-config.ini'
