@@ -77,6 +77,12 @@
       with open('{{ ansible_tmp_dir }}/containerd_modified.toml','w') as f:
          toml.dump(parsed,f)
 
+- name: Containerd | Upgrade pip
+  delegate_to: localhost
+  shell: pip install --upgrade pip
+  args:
+    executable: /bin/bash
+
 - name: Containerd | Pip install toml
   delegate_to: localhost
   shell: pip install toml
