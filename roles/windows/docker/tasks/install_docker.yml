@@ -64,6 +64,7 @@
     command="powershell.exe Move-Item
     \\\`"{{ docker_info.install_dir }}/dockerd.log\\\`"
     \\\`"{{ docker_info.install_dir }}/dockerd.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
+    if ((Get-Process -Id (Get-Content "C:\ProgramData\docker\docker.pid")).ProcessName -ne "dockerd") {Remove-Item "C:\ProgramData\docker\docker.pid"};
     Restart-Service Docker"
 
 - name: Docker | Enable Docker service failure flags
