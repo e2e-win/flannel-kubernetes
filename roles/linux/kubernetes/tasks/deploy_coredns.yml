@@ -1,4 +1,11 @@
 ---
+- name: CoreDNS | Fix resolv.conf on 18.04
+  file:
+    path: "/etc/resolv.conf"
+    src: "/run/systemd/resolve/resolv.conf"
+    state: link
+  when: ansible_distribution_version == '18.04'
+
 - name: CoreDNS | Check if CoreDNS is cloned
   stat:
     path: "{{ kubernetes_dns.tmp_path }}/coredns-checkout"

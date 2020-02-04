@@ -79,20 +79,20 @@
 
 - name: Containerd | Upgrade pip
   delegate_to: localhost
-  shell: pip install --upgrade pip
+  shell: pip3 install --upgrade pip
   args:
     executable: /bin/bash
 
 - name: Containerd | Pip install toml
   delegate_to: localhost
-  shell: pip install toml
+  shell: pip3 install toml
   args:
     executable: /bin/bash
 
 - name: Containerd | Replace cni bin and conf path in containerd config file
   script: "{{ ansible_tmp_dir }}/replace.py"
   args:
-    executable: python
+    executable: python3
   delegate_to: localhost
 
 - name: Containerd | Copy Containerd modfified config to remote host
