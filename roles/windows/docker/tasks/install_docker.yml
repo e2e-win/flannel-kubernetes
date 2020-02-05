@@ -63,8 +63,8 @@
     sc.exe failure Docker reset=40 actions=restart/0/restart/0/run/30000
     command="powershell.exe Move-Item
     \\\`"{{ docker_info.install_dir }}/dockerd.log\\\`"
-    \\\`"{{ docker_info.install_dir }}/dockerd.log_`$(Get-Date -f yyyy-MM-dd-hh-mm-ss)\\\`";
-    if ((Get-Process -Id (Get-Content "C:\ProgramData\docker\docker.pid")).ProcessName -ne "dockerd") {Remove-Item "C:\ProgramData\docker\docker.pid"};
+    \\\`"{{ docker_info.install_dir }}/dockerd.log_`$(Get-Date -f yyyy-MM-dd-HH-mm-ss)\\\`";
+    If ((Get-Process -Id (Get-Content \\\`"{{ docker_info.pid_file }}\\\`")).ProcessName -ne \\\`"dockerd\\\`") {Remove-Item \\\`"{{ docker_info.pid_file }}\\\`"};
     Restart-Service Docker"
 
 - name: Docker | Enable Docker service failure flags
