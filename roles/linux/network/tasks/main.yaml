@@ -1,0 +1,7 @@
+---
+- name: Network Settings | Include vars
+  include_vars: "{{ ansible_distribution | lower }}.yml"
+
+- name: Network Settings | Set MTU
+  shell: for dev in $(find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n'); do /sbin/ifconfig "${dev}" mtu {{ network.mtu }}; done
+  when: FLANNEL_MODE == "overlay"

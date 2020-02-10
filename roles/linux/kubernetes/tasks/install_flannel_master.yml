@@ -44,3 +44,20 @@
 - name: Flannel | Apply NodeSelector to kube-flannel-ds
   shell: |
     kubectl patch ds/kube-flannel-ds-amd64 --patch "$(cat /root/node-selector-patch.yml)" -n=kube-system
+
+- name: Flannel | Set flannel device MTU
+  shell: |
+    echo "Waiting for vxlan device..."
+    while true; do
+        VXLAN_DEVS=$(ip -o link show type vxlan | awk '{print substr($2, 1, length($2)-1)}')
+        if [ -n "${VXLAN_DEVS}" ]; then
+            for dev in ${VXLAN_DEVS}; do
+                /sbin/ifconfig "${dev}" mtu {{ flannel_vxlan.mtu }}
+            done
+            break
+        fi
+        sleep 5
+    done
+  args:
+    executable: /bin/bash
+  when: FLANNEL_MODE == "overlay"

@@ -7,6 +7,8 @@
     - import_role:
         name: linux/version_check
     - import_role:
+        name: linux/network
+    - import_role:
         name: linux/docker
     - import_role:
         name: linux/kubernetes
@@ -18,6 +20,8 @@
   tasks:
     - import_role:
         name: linux/version_check
+    - import_role:
+        name: linux/network
     - import_role:
         name: linux/docker
     - import_role:
