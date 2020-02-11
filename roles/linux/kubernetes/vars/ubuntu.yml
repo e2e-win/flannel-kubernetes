@@ -48,3 +48,6 @@ flannel_download_links:
   kube_flannel_vxlan: "https://raw.githubusercontent.com/e2e-win/flannel-kubernetes/master/misc/kube-flannel-vxlan.yml"
   kube_flannel_l2bridge: "https://raw.githubusercontent.com/e2e-win/flannel-kubernetes/master/misc/kube-flannel-l2bridge.yml"
   node_selector_patch: "https://raw.githubusercontent.com/Microsoft/SDN/master/Kubernetes/flannel/l2bridge/manifests/node-selector-patch.yml"
+
+flannel_vxlan:
+  mtu: 1350
