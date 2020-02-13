@@ -61,3 +61,7 @@
   args:
     executable: /bin/bash
   when: FLANNEL_MODE == "overlay"
+  register: result
+  until: result is succeeded
+  retries: 3
+  delay: 10
