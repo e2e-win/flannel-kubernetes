@@ -295,9 +295,9 @@
       service-command="{{ install_path }}\\kube-proxy.exe"
       --v=4 --proxy-mode=kernelspace 
       --hostname-override="{{ ansible_hostname }}"
-      --feature-gates="WinOverlay=true"
+      --feature-gates="WinOverlay=true,WinDSR=true"
       --kubeconfig=c:\k\config
-      --network-name="vxlan0" --enable-dsr=false
+      --network-name="vxlan0" --enable-dsr=true
       --source-vip="{{ source_vip }}"
       --cluster-cidr="{{ kubernetes_info.CLUSTER_SUBNET }}"
   when: FLANNEL_MODE == "overlay"
@@ -315,8 +315,8 @@
       --v=4 --proxy-mode=kernelspace 
       --hostname-override="{{ ansible_hostname }}"
       --kubeconfig=c:\k\config
-      --feature-gates="WinDSR=false"
-      --network-name="cbr0" --enable-dsr=false
+      --feature-gates="WinDSR=true"
+      --network-name="cbr0" --enable-dsr=true
       --cluster-cidr="{{ kubernetes_info.CLUSTER_SUBNET }}"
   when: FLANNEL_MODE == "host-gw"
 
