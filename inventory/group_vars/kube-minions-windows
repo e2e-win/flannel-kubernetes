@@ -24,3 +24,4 @@ service_wrapper_link: https://github.com/cloudbase/OpenStackService/releases/dow
 
 windows2019: 10.0.17763.0
 windows: 10.0.18362.0
+windows2004: 10.0.19041.0
